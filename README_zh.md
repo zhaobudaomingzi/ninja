@@ -1,4 +1,4 @@
-<br>简体中文 | [English](README.md)
+<br>English | [简体中文](README_zh.md)
 
 [![CI](https://github.com/gngpp/ninja/actions/workflows/CI.yml/badge.svg)](https://github.com/gngpp/ninja/actions/workflows/CI.yml)
 [![CI](https://github.com/gngpp/ninja/actions/workflows/Release.yml/badge.svg)](https://github.com/gngpp/ninja/actions/workflows/Release.yml)
@@ -15,46 +15,46 @@
 
 # ninja
 
-逆向工程的 `ChatGPT` 代理（绕过 Cloudflare 403 Access Denied）
+Reverse engineered `ChatGPT` proxy (bypass Cloudflare 403 Access Denied)
 
-> 如果项目对你有帮助，请考虑[捐赠支持](https://github.com/gngpp/gngpp/blob/main/SPONSOR.md#sponsor-my-open-source-works)项目持续维护，也可以付费获取咨询和技术支持服务。
+> If the project is helpful to you, please consider [donating support](https://github.com/gngpp/gngpp/blob/main/SPONSOR.md#sponsor-my-open-source-works) for continued project maintenance, or you can Pay for consulting and technical support services.
 
-### 特性
+### Features
 
-- API密钥获取
-- 电子邮件/密码帐户认证 (不支持Google/Microsoft第三方登录)
-- 支持获取RefreshToken
-- `ChatGPT-API`/`OpenAI-API`/`ChatGPT-to-API` Http API 代理 (供第三方客户端接入)
-- 支持IP代理池（支持使用Ipv6子网作为代理池）
+- API key acquisition
+- Email/password account authentication (Google/Microsoft third-party login not supported)
+- Supports obtaining RefreshToken
+- `ChatGPT-API`/`OpenAI-API`/`ChatGPT-to-API` Http API proxy (for third-party client access)
+- Support IP proxy pool (support using Ipv6 subnet as proxy pool)
 - ChatGPT WebUI
-- 极少的内存占用
+- Very small memory footprint
 
-> 局限性: 无法绕过 OpenAI 的彻底 IP 禁令
+> Limitations: This cannot bypass OpenAI's outright IP ban
 
 ### ArkoseLabs
 
-发送`GPT-4/GPT-3.5/创建API-Key`对话需要`Arkose Token`作为参数发送，支持的解决方案暂时只有两种
+Sending `GPT-4/GPT-3.5/Creating API-Key` dialog requires sending `Arkose Token` as a parameter. There are only two supported solutions for the time being.
 
-1) 使用HAR
+1) Use HAR
 
-- 支持HAR特征池化，可同时上传多个HAR，使用轮训策略
+- Supports HAR feature pooling, can upload multiple HARs at the same time, and use rotation training strategy
 
-> `ChatGPT` 官网发送一次 `GPT-4` 会话消息，浏览器 `F12` 下载 `https://tcr9i.chat.openai.com/fc/gt2/public_key/35536E1E-65B4-4D96-9D97-6ADB7EFF8147` 接口的HAR日志记录文件，使用启动参数 `--arkose-gpt4-har-dir` 指定HAR目录路径使用（不指定路径则使用默认路径`~/.gpt4`，可直接上传更新HAR），同理`GPT-3.5`和其他类型也是一样方法。支持WebUI上传更新HAR，请求路径:`/har/upload`，可选上传身份验证参数:`--arkose-har-upload-key`
+> The `ChatGPT` official website sends a `GPT-4` session message, and the browser `F12` downloads the `https://tcr9i.chat.openai.com/fc/gt2/public_key/35536E1E-65B4-4D96-9D97-6ADB7EFF8147` interface. HAR log file, use the startup parameter `--arkose-gpt4-har-dir` to specify the HAR directory path to use (if you do not specify a path, use the default path `~/.gpt4`, you can directly upload and update HAR ), the same method applies to `GPT-3.5` and other types. Supports WebUI to upload and update HAR, request path: `/har/upload`, optional upload authentication parameter: `--arkose-har-upload-key`
 
-2) 使用[YesCaptcha](https://yescaptcha.com/i/1Cc5i4) / [CapSolver](https://dashboard.capsolver.com/passport/register?inviteCode=y7CtB_a-3X6d)
+2) Use [YesCaptcha](https://yescaptcha.com/i/1Cc5i4) / [CapSolver](https://dashboard.capsolver.com/passport/register?inviteCode=y7CtB_a-3X6d)
 
-> 平台进行验证码解析，启动参数`--arkose-solver`选择平台（默认使用`YesCaptcha`），`--arkose-solver-key` 填写`Client Key`
+> The platform performs verification code parsing, start the parameter `--arkose-solver` to select the platform (use `YesCaptcha` by default), `--arkose-solver-key` fill in `Client Key`
 
-- 两种方案都使用，优先级是：`HAR` > `YesCaptcha` / `CapSolver`
-- `YesCaptcha` / `CapSolver`推荐搭配HAR使用，出验证码则调用解析器处理，验证后HAR使用更持久
+- Both solutions are used, the priority is: `HAR` > `YesCaptcha` / `CapSolver`
+- `YesCaptcha` / `CapSolver` is recommended to be used with HAR. When the verification code is generated, the parser is called for processing. After verification, HAR is more durable.
 
-> 目前OpenAI已经更新`登录`需要验证`Arkose Token`，解决方式同`GPT-4`，填写启动参数指定HAR文件`--arkose-auth-har-dir`。创建API-Key需要上传Platform相关的HAR特征文件，获取方式同上。
+> Currently OpenAI has updated `Login` which requires verification of `Arkose Token`. The solution is the same as `GPT-4`. Fill in the startup parameters and specify the HAR file `--arkose-auth-har-dir`. To create an API-Key, you need to upload the HAR feature file related to the Platform. The acquisition method is the same as above.
 
-> 近日，`OpenAI`取消对`GPT-3.5`进行`Arkose`验证，可以不上传HAR特征文件使用（已上传的不影响），兼容后续可能会再次开启`Arkose`验证，需要加上启动参数`--arkose-gpt3-experiment`进行开启`GPT-3.5`模型`Arkose`验证处理，WebUI不受影响.
+> Recently, `OpenAI` has canceled the `Arkose` verification for `GPT-3.5`. It can be used without uploading HAR feature files (uploaded ones will not be affected). After compatibility, `Arkose` verification may be turned on again, and startup parameters need to be added. `--arkose-gpt3-experiment` enables the `GPT-3.5` model `Arkose` verification processing, and the WebUI is not affected.
 
-### Http 服务
+### Http Server
 
-#### 公开接口, `*` 表示任意`URL`后缀
+#### Public interface, `*` represents any `URL` suffix
 
 - ChatGPT-API
   - `/public-api/*`
@@ -65,93 +65,96 @@
 
 - Platform-API
   - `/dashboard/*`
-  
+
 - ChatGPT-To-API
   - `/v1/chat/completions`
-  > 关于`ChatGPT`转`API`使用方法，`AceessToken`当`API Key`使用
+  > About using `ChatGPT` to `API`, use `AceessToken` directly as `API Key`
 
 - Files-API
   - `/files/*`
-  > 图片和文件上下传API代理，`/backend-api/files`接口返回的API已经转为`/files/*`
+  > Image and file upload and download API proxy, the API returned by the `/backend-api/files` interface has been converted to `/files/*`
 
 - Authorization
-  - 登录: `/auth/token`，表单`option`可选参数，默认为`web`登录，返回`AccessToken`与`Session`；参数为`apple`/`platform`，返回`AccessToken`与`RefreshToken`
-  - 刷新 `RefreshToken`: `/auth/refresh_token`
-  - 撤销 `RefreshToken`: `/auth/revoke_token`
-  - 刷新 `Session`: `/api/auth/session`，发送名为`__Secure-next-auth.session-token`的Cookie调用刷新`Session`，同时返回新的`AccessToken`
+  - Login: `/auth/token`, form `option` optional parameter, default is `web` login, returns `AccessToken` and `Session`; parameter is `apple`/`platform`, returns `AccessToken` and `RefreshToken`
+  - Refresh `RefreshToken`: `/auth/refresh_token`
+  - Revoke `RefreshToken`: `/auth/revoke_token`
+  - Refresh `Session`: `/api/auth/session`, send a cookie named `__Secure-next-auth.session-token` to call refresh `Session`, and return a new `AccessToken`
   
-  > `Web登录`默认返回一个名为: `__Secure-next-auth.session-token`的cookie，客户端只需要保存这个cookie，调用`/api/auth/session`也可以刷新`AccessToken`
+  > `Web login`, a cookie named: `__Secure-next-auth.session-token` is returned by default. The client only needs to save this cookie. Calling `/api/auth/session` can also refresh `AccessToken`
 
-  > `RefreshToken`获取的方式，采用`Apple`平台`ChatGPT App`登录方式，原理是使用内置MITM代理。`Apple设备`连上代理即可开启`Apple平台`登录获取`RefreshToken`，仅适用于量小或者个人使用`（量大会封设备，慎用）`，详细使用请看启动参数说明。
+  > About the method of obtaining `RefreshToken`, use the `ChatGPT App` login method of the `Apple` platform. The principle is to use the built-in MITM agent. When the `Apple device` is connected to the agent, you can log in to the `Apple platform` to obtain `RefreshToken`. It is only suitable for small quantities or personal use `(large quantities will seal the device, use with caution)`. For detailed usage, please see the startup parameter description.
 
   ```shell
-  # 生成证书
+  # Generate certificate
   ninja genca
 
   ninja run --pbind 0.0.0.0:8888
 
-  # 手机设置网络设置你代理监听地址，例如: http://192.168.1.1:8888
-  # 之后浏览器打开 http://192.168.1.1:8888/preauth/cert，下载证书安装并信任，之后打开iOS ChatGPT就可以愉快玩耍了
-  ```
+  # Set the network on your mobile phone to set your proxy listening address, for example: http://192.168.1.1:8888
+  # Then open the browser http://192.168.1.1:8888/preauth/cert, download the certificate, install it and trust it, then open iOS ChatGPT and you can play happily
+   ```
 
-#### API文档
+#### API documentation
 
 - Platfrom API [doc](https://platform.openai.com/docs/api-reference)
 - Backend API [doc](doc/rest.http)
 
-#### 基本服务
+#### Basic services
 
 - ChatGPT WebUI
-- 公开`ChatGPT-API`/`OpenAI-API`代理
-- `API`前缀与官方一致
-- `ChatGPT` 转 `API`
-- 可接入第三方客户端
-- 可接入IP代理池，提高并发
-- 支持获取RefreshToken
-- 支持以HAR格式文件特征池
+- Expose `ChatGPT-API`/`OpenAI-API` proxies
+- `API` prefix is consistent with the official one
+- `ChatGPT` to `API`
+- Can access third-party clients
+- Can access IP proxy pool to improve concurrency
+- Supports obtaining RefreshToken
+- Support file feature pooling in HAR format
 
-#### 参数说明
+#### Parameter Description
 
-- `--level`，环境变量 `LOG`，日志级别: 默认info
-- `--bind`，环境变量 `BIND`， 服务监听地址: 默认0.0.0.0:7999，
-- `--tls-cert`，环境变量 `TLS_CERT`，TLS证书公钥，支持格式: EC/PKCS8/RSA
-- `--tls-key`，环境变量 `TLS_KEY`，TLS证书私钥
-- `--proxies`，代理，支持代理池，多个代理使用`,`隔开，格式: protocol://user:pass@ip:port
-- `--workers`，工作线程: 默认1
-- `--disable-webui`, 如果不想使用默认自带的WebUI，使用此参数关闭
-- `--enable-file-proxy`，环境变量`ENABLE_FILE_PROXY`，开启文件上下传API代理
+- `--level`, environment variable `LOG`, log level: default info
+- `--bind`, environment variable `BIND`, service listening address: default 0.0.0.0:7999,
+- `--tls-cert`, environment variable `TLS_CERT`', TLS certificate public key. Supported format: EC/PKCS8/RSA
+- `--tls-key`, environment variable `TLS_KEY`, TLS certificate private key
+- `--proxies`, proxy, supports proxy pool, multiple proxies are separated by `,`, format: protocol://user:pass@ip:port
+  - Advanced usage
+  > Used by built-in protocols and types of agents, built-in protocols: `all/api/auth/arkose`, where `all` is for all clients, `api` is for all `OpenAI API`, `auth` is for authorization/login, `arkose` is for ArkoseLabs; the type of proxy: `interface/proxy/ipv6_subnet`, where `interface` represents the bound export `IP` address, `proxy` represents the upstream proxy protocol: `http/https/socks5`, `ipv6_subnet` Indicates that a random IP address in the Ipv6 network segment is used as a proxy. Example: `all|socks5://192.168.1.1:1080, api|10.0.0.1, auth|2001:db8::/32, http://192.168.1.1:1081`, without built-in protocol `all/api /auth/arkose`, the default is `all`. `ipv6_subnet` is used by default when present.
+- `--enable-direct`, enable direct connection, add the IP bound to the `interface` export to the proxy pool
+- `--workers`, worker threads: default 1
+- `--disable-webui`, if you don’t want to use the default built-in WebUI, use this parameter to turn it off
+- `--enable-file-proxy`, environment variable `ENABLE_FILE_PROXY`, turns on the file upload and download API proxy
 
-[...](https://github.com/gngpp/ninja/blob/main/README_zh.md#%E5%91%BD%E4%BB%A4%E6%89%8B%E5%86%8C)
+[...](https://github.com/gngpp/ninja/blob/main/README.md#command-manual)
 
-### 安装
+### Install
 
 - #### Ubuntu(Other Linux)
 
-  GitHub [Releases](https://github.com/gngpp/ninja/releases/latest) 中有预编译的 deb包，二进制文件，以Ubuntu为例：
+Making [Releases](https://github.com/gngpp/ninja/releases/latest) has a precompiled deb package, binaries, in Ubuntu, for example:
 
 ```shell
-wget https://github.com/gngpp/ninja/releases/download/v0.8.5/ninja-0.8.5-x86_64-unknown-linux-musl.tar.gz
-tar -xf ninja-0.8.5-x86_64-unknown-linux-musl.tar.gz
+wget https://github.com/gngpp/ninja/releases/download/v0.8.6/ninja-0.8.6-x86_64-unknown-linux-musl.tar.gz
+tar -xf ninja-0.8.6-x86_64-unknown-linux-musl.tar.gz
 ./ninja run
 ```
 
 - #### OpenWrt
 
-GitHub [Releases](https://github.com/gngpp/ninja/releases/latest) 中有预编译的 ipk 文件， 目前提供了 aarch64/x86_64 等架构的版本，下载后使用 opkg 安装，以 nanopi r4s 为例：
+There are pre-compiled ipk files in GitHub [Releases](https://github.com/gngpp/ninja/releases/latest), which currently provide versions of aarch64/x86_64 and other architectures. After downloading, use opkg to install, and use nanopi r4s as example:
 
 ```shell
-wget https://github.com/gngpp/ninja/releases/download/v0.8.5/ninja_0.8.5_aarch64_generic.ipk
-wget https://github.com/gngpp/ninja/releases/download/v0.8.5/luci-app-ninja_1.1.6-1_all.ipk
-wget https://github.com/gngpp/ninja/releases/download/v0.8.5/luci-i18n-ninja-zh-cn_1.1.6-1_all.ipk
+wget https://github.com/gngpp/ninja/releases/download/v0.8.6/ninja_0.8.6_aarch64_generic.ipk
+wget https://github.com/gngpp/ninja/releases/download/v0.8.6/luci-app-ninja_1.1.6-1_all.ipk
+wget https://github.com/gngpp/ninja/releases/download/v0.8.6/luci-i18n-ninja-zh-cn_1.1.6-1_all.ipk
 
-opkg install ninja_0.8.5_aarch64_generic.ipk
+opkg install ninja_0.8.6_aarch64_generic.ipk
 opkg install luci-app-ninja_1.1.6-1_all.ipk
 opkg install luci-i18n-ninja-zh-cn_1.1.6-1_all.ipk
 ```
 
 - #### Docker
 
-> 镜像源支持`gngpp/ninja:latest`/`ghcr.io/gngpp/ninja:latest`
+> Mirror source supports `gngpp/ninja:latest`/`ghcr.io/gngpp/ninja:latest`
 
 ```shell
 docker run --rm -it -p 7999:7999 --name=ninja \
@@ -162,7 +165,7 @@ docker run --rm -it -p 7999:7999 --name=ninja \
 
 - Docker Compose
 
-> `CloudFlare Warp`你的地区不支持（China）请把它删掉，或者你的`VPS`IP可直连`OpenAI`，那么也可以删掉
+> `CloudFlare Warp` is not supported in your region (China), please delete it, or if your `VPS` IP can be directly connected to `OpenAI`, you can also delete it
 
 ```yaml
 version: '3'
@@ -196,7 +199,7 @@ services:
 
 ```
 
-### 命令手册
+### Command Manual
 
 ```shell
 $ ninja --help
@@ -310,7 +313,7 @@ Options:
           Print help
 ```
 
-### 平台支持
+### Platform Support
 
 - Linux
   - `x86_64-unknown-linux-musl`
@@ -326,9 +329,9 @@ Options:
   - `x86_64-apple-darwin`
   - `aarch64-apple-darwin`
 
-### 编译
+### Compile
 
-- Linux编译，Ubuntu机器为例:
+- Linux compile, Ubuntu machine for example:
 
 ```shell
 apt install build-essential
@@ -339,7 +342,7 @@ git clone https://github.com/gngpp/ninja.git && cd ninja
 cargo build --release
 ```
 
-- OpenWrt 编译
+- OpenWrt Compile
 
 ```shell
 cd package
@@ -349,13 +352,13 @@ make menuconfig # choose LUCI->Applications->luci-app-ninja
 make V=s
 ```
 
-### 说明
+### Instructions
 
-- 开源项目可以魔改，但请保留原作者信息，以免失去技术支持。
-- 项目是站在其他巨人的肩膀上，感谢！
-- 报错、BUG之类的提出Issue，我会修复。
+- Open source projects can be modified, but please keep the original author information to avoid losing technical support.
+- Project is standing on the shoulders of other giants, thanks!
+- Submit an issue if there are errors, bugs, etc., and I will fix them.
 
-### 预览
+### Preview
 
 ![img0](./doc/img/img0.png)
 ![img1](./doc/img/img1.png)
