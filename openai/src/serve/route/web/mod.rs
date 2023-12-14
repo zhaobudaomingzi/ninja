@@ -1,7 +1,6 @@
 mod cookier;
 mod extract;
 
-use anyhow::anyhow;
 use axum::body;
 use axum::body::Body;
 use axum::extract::ConnectInfo;
@@ -51,7 +50,7 @@ use crate::now_duration;
 use crate::serve::error::ResponseError;
 use crate::serve::middleware::csrf;
 use crate::serve::proxy::header_convert;
-use crate::serve::route::ui::extract::SessionExtractor;
+use crate::serve::route::web::extract::SessionExtractor;
 use crate::serve::turnstile;
 use crate::serve::whitelist;
 use crate::with_context;
@@ -92,12 +91,15 @@ pub(super) fn config(router: Router, args: &Args) -> Router {
 
     let mut tera = tera::Tera::default();
     tera.add_raw_templates(vec![
-        (TEMP_404, include_str!("../../../../ui/404.htm")),
-        (TEMP_AUTH, include_str!("../../../../ui/auth.htm")),
-        (TEMP_LOGIN, include_str!("../../../../ui/login.htm")),
-        (TEMP_CHAT, include_str!("../../../../ui/chat.htm")),
-        (TEMP_DETAIL, include_str!("../../../../ui/detail.htm")),
-        (TEMP_SHARE, include_str!("../../../../ui/share.htm")),
+        (TEMP_404, include_str!("../../../../templates/404.htm")),
+        (TEMP_AUTH, include_str!("../../../../templates/auth.htm")),
+        (TEMP_LOGIN, include_str!("../../../../templates/login.htm")),
+        (TEMP_CHAT, include_str!("../../../../templates/chat.htm")),
+        (
+            TEMP_DETAIL,
+            include_str!("../../../../templates/detail.htm"),
+        ),
+        (TEMP_SHARE, include_str!("../../../../templates/share.htm")),
     ])
     .expect("The static template failed to load");
 
@@ -264,7 +266,7 @@ async fn post_login_token(
         s if s.split('.').count() == 3 => {
             let token_prefile = crate::token::check(s)
                 .map_err(ResponseError::Unauthorized)?
-                .ok_or(ResponseError::InternalServerError(anyhow!(
+                .ok_or(ResponseError::InternalServerError(anyhow::anyhow!(
                     "get access token profile error"
                 )))?;
             // Check if the request is in the whitelist
@@ -347,37 +349,37 @@ async fn get_session(extract: SessionExtractor) -> Result<Response<Body>, Respon
     }
 
     // Refresh session
-    if extract.session.expires - current_timestamp <= 21600 {
-        let ctx = with_context!();
-        let new_session = if let Some(c) = extract.session_token {
-            match ctx.auth_client().do_session(&c).await {
-                Ok(access_token) => {
-                    let authentication_token = Token::try_from(access_token)?;
-                    Some(Session::from(authentication_token))
-                }
-                Err(err) => {
-                    debug!("Get session token error: {}", err);
-                    None
-                }
+    let new_session = if let Some(c) = extract.session_token {
+        match with_context!(auth_client).do_session(&c).await {
+            Ok(access_token) => {
+                let authentication_token = Token::try_from(access_token)?;
+                Some(Session::from(authentication_token))
             }
-        } else if let Some(refresh_token) = extract.session.refresh_token.as_ref() {
-            match ctx.auth_client().do_refresh_token(&refresh_token).await {
-                Ok(new_refresh_token) => {
-                    let authentication_token = Token::try_from(new_refresh_token)?;
-                    Some(Session::from(authentication_token))
-                }
-                Err(err) => {
-                    debug!("Refresh token error: {}", err);
-                    None
-                }
+            Err(err) => {
+                debug!("Get session token error: {}", err);
+                None
             }
-        } else {
-            None
-        };
-
-        if let Some(new_session) = new_session {
-            return create_response_from_session(&new_session);
         }
+    } else if let Some(refresh_token) = extract.session.refresh_token.as_ref() {
+        match with_context!(auth_client)
+            .do_refresh_token(&refresh_token)
+            .await
+        {
+            Ok(new_refresh_token) => {
+                let authentication_token = Token::try_from(new_refresh_token)?;
+                Some(Session::from(authentication_token))
+            }
+            Err(err) => {
+                debug!("Refresh token error: {}", err);
+                None
+            }
+        }
+    } else {
+        None
+    };
+
+    if let Some(new_session) = new_session {
+        return create_response_from_session(&new_session);
     }
 
     create_response_from_session(&extract.session)

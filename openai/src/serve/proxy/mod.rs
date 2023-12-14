@@ -1,6 +1,6 @@
-pub mod ext;
-pub mod req;
-pub mod resp;
+pub(crate) mod ext;
+pub(crate) mod req;
+pub(crate) mod resp;
 mod toapi;
 
 use super::error::ResponseError;

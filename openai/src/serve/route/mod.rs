@@ -10,9 +10,10 @@ use crate::context::args::Args;
 use super::error::ResponseError;
 
 mod arkose;
+mod backend;
 mod files;
 mod har;
-mod ui;
+mod web;
 
 include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 
@@ -23,7 +24,8 @@ pub(super) fn config(router: Router, args: &Args) -> Router {
     let router = arkose::config(router, args);
     let router = har::config(router, args);
     let router = files::config(router, args);
-    let router = ui::config(router, args);
+    let router = web::config(router, args);
+    let router = backend::config(router, args);
     router
 }
 

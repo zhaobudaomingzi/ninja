@@ -10,7 +10,7 @@ use crate::constant::API_AUTH_SESSION_COOKIE_KEY;
 use crate::debug;
 use crate::token::TokenProfile;
 use crate::{
-    serve::{error::ResponseError, route::ui::LOGIN_INDEX, route::ui::SESSION_ID},
+    serve::{error::ResponseError, route::web::LOGIN_INDEX, route::web::SESSION_ID},
     token::model::Token,
 };
 
