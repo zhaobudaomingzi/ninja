@@ -135,10 +135,12 @@ Currently OpenAI has updated `Login` which requires verification of `Arkose Toke
   > where pk is the arkose type ID, such as requesting Arkose for GPT4, `/arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`
 
 - Authorization
-  - Login: `/auth/token`, form `option` optional parameter, default is `web` login, returns `AccessToken` and `Session`; parameter is `apple`/`platform`, returns `AccessToken` and `RefreshToken`
-  - Refresh `RefreshToken`: `/auth/refresh_token`
-  - Revoke `RefreshToken`: `/auth/revoke_token`
-  - Refresh `Session`: `/auth/refresh_session`, send a cookie named `__Secure-next-auth.session-token` to call refresh `Session`, and return a new `AccessToken`
+  > Except for login, use `Authorization: Bearer xxxx`
+  - Login: `POST /auth/token`, form `option` optional parameter, default is `web` login, returns `AccessToken` and `Session`; parameter is `apple`/`platform`, returns `AccessToken` and `RefreshToken`
+  - Refresh `RefreshToken`: `POST /auth/refresh_token`
+  - Revoke `RefreshToken`: `POST /auth/revoke_token`
+  - Refresh `Session`: `POST /auth/refresh_session`
+  - Get `Sess token`: `POST /auth/sess_token`
   
   `Web login`, a cookie named: `__Secure-next-auth.session-token` is returned by default. The client only needs to save this cookie. Calling `/auth/refresh_session` can also refresh `AccessToken`
 
@@ -279,9 +281,9 @@ Options:
           Enable direct connection [env: ENABLE_DIRECT=]
   -I, --impersonate-uas <IMPERSONATE_UAS>
           Impersonate User-Agent, separate multiple ones with ","
-          Safari: safari12,safari15_3,safari15_5
+          Safari: safari12,safari15_3,safari15_5,safari15_6_1,safari16,safari16_5
           OkHttp: okhttp3_9,okhttp3_11,okhttp3_13,okhttp3_14,okhttp4_9,okhttp4_10,okhttp5
-          Chrome: chrome99,chrome104,chrome105,chrome106,chrome107,chrome108,chrome109,chrome114,chrome116,chrome118,chrome119 [env: IMPERSONATE_UA=]
+          Chrome: chrome99,chrome100,chrome101,chrome104,chrome105,chrome106,chrome107,chrome108,chrome109,chrome114,chrome116,chrome117,chrome118,chrome119,chrome120 [env: IMPERSONATE_UA=]
       --cookie-store
           Enabled Cookie Store [env: COOKIE_STORE=]
       --tls-cert <TLS_CERT>
