@@ -10,7 +10,7 @@ if [ -n "$GIT_TOKEN" ]; then
 
     if [ $(ls patches/*.patch 2>/dev/null | wc -l) -gt 0 ]; then
         for patch in patches/*.patch; do
-            git apply "$patch"
+            git apply --whitespace=nowarn "$patch"
         done
     fi
 fi
