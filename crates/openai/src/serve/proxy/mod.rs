@@ -18,6 +18,15 @@ pub(crate) fn header_convert(
     origin: &'static str,
 ) -> Result<HeaderMap, ResponseError> {
     let mut headers = HeaderMap::new();
+    let mut cookies = Vec::new();
+
+    // Support for team accounts.
+    // The chat will be sent to the team account if the header is present, otherwise
+    // it will be sent to the personal account.
+    h.get("Chatgpt-Account-Id").map(|h| {
+        headers.insert("Chatgpt-Account-Id", h.clone());
+        cookies.push(format!("{}={}", "_account", h.to_str().unwrap()));
+    });
 
     h.get("Access-Control-Request-Headers")
         .map(|h| headers.insert("Access-Control-Request-Headers", h.clone()));
@@ -75,8 +84,6 @@ pub(crate) fn header_convert(
 
     headers.insert(header::ORIGIN, header::HeaderValue::from_static(origin));
     headers.insert(header::REFERER, header::HeaderValue::from_static(origin));
-
-    let mut cookies = Vec::new();
 
     jar.iter()
         .filter(|c| {
