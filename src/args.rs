@@ -102,7 +102,7 @@ pub struct ServeArgs {
     #[clap(long, default_value = "60")]
     pub(super) tcp_keepalive: usize,
 
-    /// Server/Client No TCP keepalive
+    /// No TCP keepalive (Client)
     #[clap(short = 'H', long, env = "NO_TCP_KEEPALIVE", default_value = "false")]
     pub(super) no_keepalive: bool,
 

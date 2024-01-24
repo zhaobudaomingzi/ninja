@@ -212,11 +212,7 @@ impl Serve {
         tokio::spawn(check_wan_address());
 
         // http server tcp keepalive
-        let tcp_keepalive = if self.0.no_keepalive {
-            None
-        } else {
-            Some(Duration::from_secs(self.0.tcp_keepalive as u64 + 1))
-        };
+        let tcp_keepalive = Duration::from_secs(self.0.tcp_keepalive as u64 + 1);
 
         // http server config
         let http_config = HttpConfig::new()
@@ -228,7 +224,7 @@ impl Serve {
         // http server incoming config
         let incoming_config = AddrIncomingConfig::new()
             .tcp_sleep_on_accept_errors(true)
-            .tcp_keepalive(tcp_keepalive)
+            .tcp_keepalive(Some(tcp_keepalive))
             .build();
 
         // http server mitm signal
