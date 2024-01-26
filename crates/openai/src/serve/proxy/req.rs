@@ -9,7 +9,7 @@ use http::header;
 use http::{HeaderMap, Method};
 use serde_json::{json, Value};
 
-use crate::arkose::{ArkoseToken, Type};
+use crate::arkose::{ArkoseContext, ArkoseToken, Type};
 use crate::constant::{ARKOSE_TOKEN, EMPTY, MODEL, NULL, PUID};
 use crate::gpt_model::GPTModel;
 use crate::{arkose, with_context};
@@ -133,7 +133,14 @@ async fn handle_conv_request(req: &mut RequestExt) -> Result<(), ResponseError> 
         };
 
         if condition {
-            let arkose_token = ArkoseToken::new_from_context(model.into(), Some(token)).await?;
+            let arkose_token = ArkoseToken::new_from_context(
+                ArkoseContext::builder()
+                    .client(with_context!(arkose_client))
+                    .typed(model.into())
+                    .identifier(Some(token))
+                    .build(),
+            )
+            .await?;
             body.insert(ARKOSE_TOKEN.to_owned(), json!(arkose_token.value()));
             // Updaye Modify bytes
             req.body = Some(Bytes::from(
@@ -168,7 +175,14 @@ async fn handle_dashboard_request(req: &mut RequestExt) -> Result<(), ResponseEr
 
     // If arkose_token is not exist, then add it
     if body.get(ARKOSE_TOKEN).is_none() {
-        let arkose_token = arkose::ArkoseToken::new_from_context(Type::Platform, None).await?;
+        let arkose_token = arkose::ArkoseToken::new_from_context(
+            arkose::ArkoseContext::builder()
+                .client(with_context!(arkose_client))
+                .typed(Type::Platform)
+                .identifier(None)
+                .build(),
+        )
+        .await?;
         body.insert(ARKOSE_TOKEN.to_owned(), json!(arkose_token.value()));
         // Updaye Modify bytes
         req.body = Some(Bytes::from(

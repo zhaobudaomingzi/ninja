@@ -5,7 +5,7 @@ mod preauth;
 mod proxy;
 mod puid;
 #[cfg(feature = "template")]
-mod route;
+mod router;
 mod signal;
 mod turnstile;
 mod whitelist;
@@ -27,6 +27,7 @@ use self::proxy::ext::RequestExt;
 use self::proxy::ext::SendRequestExt;
 use self::proxy::resp::response_convert;
 use crate::arkose;
+use crate::arkose::ArkoseContext;
 use crate::arkose::ArkoseToken;
 use crate::auth::model::{AccessToken, AuthAccount, RefreshToken, SessionAccessToken};
 use crate::auth::provide::AuthProvider;
@@ -188,7 +189,7 @@ impl Serve {
             .route("/auth/sess_token", post(post_sess_token))
             .route("/auth/billing", post(post_billing));
 
-        let router = route::config(
+        let router = router::config(
             // Enable arkose token endpoint proxy
             if self.0.enable_arkose_proxy {
                 router.route("/auth/arkose_token/:path", get(get_arkose_token))
@@ -391,10 +392,16 @@ async fn get_arkose_token(
     let typed = arkose::Type::from_pk(pk.as_str()).map_err(ResponseError::BadRequest)?;
     // 35536E1E-65B4-4D96-9D97-6ADB7EFF8147 need access token
     let identifier = bearer.map(|v| v.token().to_owned());
-    ArkoseToken::new_from_context(typed, identifier)
-        .await
-        .map(Json)
-        .map_err(ResponseError::ExpectationFailed)
+    ArkoseToken::new_from_context(
+        ArkoseContext::builder()
+            .client(with_context!(arkose_client))
+            .typed(typed)
+            .identifier(identifier)
+            .build(),
+    )
+    .await
+    .map(Json)
+    .map_err(ResponseError::ExpectationFailed)
 }
 
 /// match path /dashboard/{tail.*}

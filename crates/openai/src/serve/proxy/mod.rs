@@ -25,7 +25,7 @@ pub(crate) fn header_convert(
     // it will be sent to the personal account.
     h.get("Chatgpt-Account-Id").map(|h| {
         headers.insert("Chatgpt-Account-Id", h.clone());
-        cookies.push(format!("{}={}", "_account", h.to_str().unwrap()));
+        cookies.push(format!("_account={}", h.to_str().unwrap_or_default()));
     });
 
     h.get("Access-Control-Request-Headers")

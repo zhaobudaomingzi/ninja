@@ -4,7 +4,7 @@ use axum::extract::Query;
 use serde_json::Value;
 use time::format_description::well_known::Rfc3339;
 
-use crate::serve::route::frontend::chat::BUILD_ID;
+use super::BUILD_ID;
 
 use super::session::session::Session;
 
