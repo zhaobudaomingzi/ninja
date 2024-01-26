@@ -136,12 +136,7 @@ pub struct Args {
     /// Tokenbucket store strategy
     #[cfg(feature = "limit")]
     #[builder(setter(into), default = "mem".to_string())]
-    pub(crate) tb_store_strategy: String,
-
-    /// Tokenbucket redis url
-    #[cfg(feature = "limit")]
-    #[builder(setter(into), default = "redis://127.0.0.1:6379".to_string())]
-    pub(crate) tb_redis_url: String,
+    pub(crate) tb_strategy: String,
 
     /// Tokenbucket capacity
     #[cfg(feature = "limit")]

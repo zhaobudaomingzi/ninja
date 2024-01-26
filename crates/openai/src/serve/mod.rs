@@ -160,12 +160,11 @@ impl Serve {
         // init auth layer provider
         let app_layer = {
             let limit_context = TokenBucketLimitContext::from((
-                Strategy::from_str(self.0.tb_store_strategy.as_str())?,
+                Strategy::from_str(self.0.tb_strategy.as_str())?,
                 self.0.tb_enable,
                 self.0.tb_capacity,
                 self.0.tb_fill_rate,
                 self.0.tb_expired,
-                self.0.tb_redis_url.clone(),
             ));
 
             tower::ServiceBuilder::new()

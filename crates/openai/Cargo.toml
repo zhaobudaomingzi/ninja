@@ -33,9 +33,9 @@ hotwatch = "0.5.0"
 moka = { version = "0.12.1", default-features = false, features = ["sync"], optional = true }
 cidr = { version = "0.2.2", features = ["serde"] }
 
-# redis limit
-redis = { version = "0.23.3", features = ["tokio-comp", "tokio-rustls-comp"], optional = true }
-redis-macros = { version = "0.2.1", optional = true }
+# native db
+native_db = "0.5.3"
+native_model = "0.4.6"
 
 # stream
 tokio-util = { version = "0.7.8", features = ["codec"], optional = true }
@@ -86,7 +86,7 @@ serve = ["dep:serde_urlencoded", "dep:axum_csrf", "stream", "dep:async-stream", 
 preauth = ["dep:mitm"]
 stream = ["dep:tokio-util", "dep:futures", "dep:tokio-stream", "dep:eventsource-stream", "dep:futures-core", "dep:pin-project-lite", "dep:nom", "dep:mime", "dep:futures-timer"]
 remote-token = []
-limit = ["dep:redis", "dep:redis-macros", "dep:moka"]
+limit = ["dep:moka"]
 template = []
 
 [lib]

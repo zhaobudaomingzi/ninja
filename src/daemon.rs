@@ -89,8 +89,7 @@ pub(super) fn serve(mut args: ServeArgs, relative_path: bool) -> anyhow::Result<
     #[cfg(feature = "limit")]
     let builder = builder
         .tb_enable(args.tb_enable)
-        .tb_store_strategy(args.tb_store_strategy)
-        .tb_redis_url(args.tb_redis_url)
+        .tb_strategy(args.tb_strategy)
         .tb_capacity(args.tb_capacity)
         .tb_fill_rate(args.tb_fill_rate)
         .tb_expired(args.tb_expired);
@@ -280,8 +279,7 @@ pub(super) fn generate_template(out: Option<PathBuf>) -> anyhow::Result<()> {
         timeout: 600,
         connect_timeout: 60,
         tcp_keepalive: 60,
-        tb_store_strategy: "mem".to_string(),
-        tb_redis_url: "redis://127.0.0.1:6379".to_string(),
+        tb_strategy: "mem".to_string(),
         tb_enable: false,
         tb_capacity: 60,
         tb_fill_rate: 1,
