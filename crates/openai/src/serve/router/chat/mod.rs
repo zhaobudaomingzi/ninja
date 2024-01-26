@@ -1,4 +1,3 @@
-mod arkose;
 mod cookier;
 mod props;
 mod session;
@@ -57,10 +56,9 @@ use crate::{
     URL_CHATGPT_API,
 };
 
+use super::get_static_resource;
 use session::session::Session;
 use session::SessionExt;
-
-use super::get_static_resource;
 
 const HOME_INDEX: &str = "/";
 const LOGIN_INDEX: &str = "/auth/login";
@@ -88,15 +86,12 @@ pub(super) fn config(router: Router, args: &Args) -> Router {
     let config = CsrfConfig::default().with_key(Some(Key::generate()));
 
     // Configure arkose routing
-    let router = arkose::config(
-        // If the auth key is empty, then the auth page is not required
-        if with_context!(auth_key).is_some() {
-            router
-        } else {
-            router.route("/auth", get(auth))
-        },
-        args,
-    );
+    let router =     // If the auth key is empty, then the auth page is not required
+    if with_context!(auth_key).is_some() {
+        router
+    } else {
+        router.route("/auth", get(auth))
+    };
 
     // Configure the UI routing
     router
@@ -615,21 +610,12 @@ fn render_template(name: &str, context: &tera::Context) -> Result<Response<Body>
         .get_or_init(|| {
             let mut tera = tera::Tera::default();
             tera.add_raw_templates(vec![
-                (TEMP_404, include_str!("../../../../../frontend/404.htm")),
-                (TEMP_AUTH, include_str!("../../../../../frontend/auth.htm")),
-                (
-                    TEMP_LOGIN,
-                    include_str!("../../../../../frontend/login.htm"),
-                ),
-                (TEMP_CHAT, include_str!("../../../../../frontend/chat.htm")),
-                (
-                    TEMP_DETAIL,
-                    include_str!("../../../../../frontend/detail.htm"),
-                ),
-                (
-                    TEMP_SHARE,
-                    include_str!("../../../../../frontend/share.htm"),
-                ),
+                (TEMP_404, include_str!("../../../../frontend/404.htm")),
+                (TEMP_AUTH, include_str!("../../../../frontend/auth.htm")),
+                (TEMP_LOGIN, include_str!("../../../../frontend/login.htm")),
+                (TEMP_CHAT, include_str!("../../../../frontend/chat.htm")),
+                (TEMP_DETAIL, include_str!("../../../../frontend/detail.htm")),
+                (TEMP_SHARE, include_str!("../../../../frontend/share.htm")),
             ])
             .expect("The static template failed to load");
             tera

@@ -1,17 +1,17 @@
-use std::collections::HashMap;
-use tokio::sync::OnceCell;
-
-use axum::http::header;
-use axum::http::StatusCode;
-use axum::{body::Body, extract::Path, http::Response, Router};
+mod chat;
+mod files;
+mod har;
 
 use crate::context::args::Args;
 use crate::serve::error::ResponseError;
-
-mod chat;
-mod har;
+use axum::http::header;
+use axum::http::StatusCode;
+use axum::{body::Body, extract::Path, http::Response, Router};
+use std::collections::HashMap;
+use tokio::sync::OnceCell;
 
 pub(super) fn config(router: Router, args: &Args) -> Router {
+    let router = files::config(router, args);
     let router = har::config(router, args);
     let router = chat::config(router, args);
     router

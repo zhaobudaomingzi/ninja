@@ -205,14 +205,22 @@ pub struct ServeArgs {
     #[clap(
         short = 's',
         long,
-        default_value = "yescaptcha",
+        default_value = "fcsrv",
         requires = "arkose_solver_key"
     )]
     pub(super) arkose_solver: Solver,
 
-    #[clap(short = 'k', long)]
     /// About the solver client key by ArkoseLabs
+    #[clap(short = 'k', long)]
     pub(super) arkose_solver_key: Option<String>,
+
+    /// About the solver client url by ArkoseLabs
+    #[clap(long, value_parser = parse::parse_url, requires = "arkose_solver_key")]
+    pub(super) arkose_solver_url: Option<String>,
+
+    /// About the solver submit multiple image limit by ArkoseLabs
+    #[clap(long, default_value = "1", requires = "arkose_solver_key")]
+    pub(super) arkose_solver_limit: usize,
 
     /// Enable token bucket flow limitation
     #[clap(short = 'T', long)]

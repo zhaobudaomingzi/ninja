@@ -5,7 +5,7 @@ pub mod web;
 
 use std::collections::HashSet;
 
-use crate::arkose::{self, ArkoseToken, Type};
+use crate::arkose::{self, ArkoseContext, ArkoseToken, Type};
 
 use super::{
     error::AuthError,
@@ -56,10 +56,14 @@ struct RequestContext<'a> {
     state: String,
     code_verifier: String,
     code_challenge: String,
+    client: &'a reqwest::Client,
 }
 
 impl<'a> RequestContext<'a> {
-    pub(super) fn new(account: &'a model::AuthAccount) -> RequestContext<'_> {
+    pub(super) fn new(
+        account: &'a model::AuthAccount,
+        client: &'a reqwest::Client,
+    ) -> RequestContext<'a> {
         Self {
             account,
             cookie: HashSet::new(),
@@ -67,6 +71,7 @@ impl<'a> RequestContext<'a> {
             state: String::new(),
             code_verifier: String::new(),
             code_challenge: String::new(),
+            client,
         }
     }
 
@@ -109,9 +114,14 @@ impl<'a> RequestContext<'a> {
                 let _ = arkose_token.callback().await;
                 arkose_token
             }
-            None => arkose::ArkoseToken::new_from_context(Type::Auth, None)
-                .await
-                .map_err(AuthError::InvalidArkoseToken)?,
+            None => arkose::ArkoseToken::new_from_context(
+                ArkoseContext::builder()
+                    .client(self.client.clone())
+                    .typed(Type::Auth)
+                    .build(),
+            )
+            .await
+            .map_err(AuthError::InvalidArkoseToken)?,
         };
 
         self.cookie

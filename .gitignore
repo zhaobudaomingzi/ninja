@@ -33,3 +33,6 @@ ca
 har/*.har
 patch/.patch
 *.patch
+*.gz
+*.csv
+bx/

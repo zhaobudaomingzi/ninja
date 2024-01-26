@@ -11,6 +11,7 @@ use eventsource_stream::Eventsource;
 use reqwest::StatusCode;
 use std::str::FromStr;
 
+use crate::arkose::ArkoseContext;
 use crate::chatgpt::model::req::Metadata;
 use crate::chatgpt::model::Role;
 use crate::gpt_model::GPTModel;
@@ -95,16 +96,23 @@ pub(super) async fn send_request(req: RequestExt) -> Result<ResponseExt, Respons
         messages.push(message)
     }
 
+    // Request client
+    let client = with_context!(api_client);
+
     // OpenAI API to ChatGPT API model mapper
-    // check model is supported
     let gpt_model = GPTModel::from_str(&body.model)?;
 
     // check if arkose token is required
     let arkose_token: Option<String> =
         if (with_context!(arkose_gpt3_experiment) && gpt_model.is_gpt3()) || gpt_model.is_gpt4() {
-            let arkose_token =
-                ArkoseToken::new_from_context(gpt_model.clone().into(), Some(baerer.to_owned()))
-                    .await?;
+            let arkose_token = ArkoseToken::new_from_context(
+                ArkoseContext::builder()
+                    .client(client.clone())
+                    .typed(gpt_model.clone().into())
+                    .identifier(Some(baerer.to_owned()))
+                    .build(),
+            )
+            .await?;
             Some(arkose_token.into())
         } else {
             None
@@ -128,7 +136,7 @@ pub(super) async fn send_request(req: RequestExt) -> Result<ResponseExt, Respons
         .timezone_offset_min(-480)
         .build();
 
-    let mut builder = with_context!(api_client)
+    let mut builder = client
         .post(format!("{URL_CHATGPT_API}/backend-api/conversation"))
         .headers(header_convert(&req.headers, &req.jar, URL_CHATGPT_API)?);
 

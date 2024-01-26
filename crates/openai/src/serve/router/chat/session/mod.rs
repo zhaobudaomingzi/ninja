@@ -1,10 +1,13 @@
 pub mod session;
 
 use axum::body::HttpBody;
-use axum::http::{header, HeaderMap, Method, Request, Uri};
+use axum::extract::{FromRequestParts, Query};
+use axum::headers::UserAgent;
+use axum::http::{HeaderMap, Method, Request, Uri};
 use axum::{async_trait, extract::FromRequest};
-use axum::{BoxError, Form};
+use axum::{BoxError, Form, TypedHeader};
 use axum_extra::extract::CookieJar;
+use hyper::header;
 use serde::de::DeserializeOwned;
 use std::str::FromStr;
 
@@ -25,6 +28,8 @@ pub struct SessionExt {
 pub struct ArkoseSessionExt<T: DeserializeOwned> {
     pub uri: Uri,
     pub method: Method,
+    pub user_agent: TypedHeader<UserAgent>,
+    pub query: Option<Query<T>>,
     pub headers: HeaderMap,
     pub session: Option<Session>,
     pub body: Option<Form<T>>,
@@ -69,7 +74,7 @@ where
 #[async_trait]
 impl<S, B, T> FromRequest<S, B> for ArkoseSessionExt<T>
 where
-    T: DeserializeOwned,
+    T: DeserializeOwned + std::marker::Send,
     B: Send + 'static,
     S: Send + Sync,
     B: HttpBody + Send + 'static,
@@ -79,26 +84,38 @@ where
     type Rejection = ResponseError;
 
     async fn from_request(req: Request<B>, state: &S) -> Result<Self, Self::Rejection> {
+        let (mut parts, body) = req.into_parts();
         // Try to extract session from cookie
-        let session = CookieJar::from_headers(&req.headers())
+        let session = CookieJar::from_headers(&parts.headers)
             .get(SESSION_ID)
             .map(|v| extract_session(v.value()))
             .map(|v| v.ok())
             .flatten();
 
-        let uri = req.uri().clone();
-        let method = req.method().clone();
-        let headers = req.headers().clone();
+        let uri = parts.uri.clone();
+        let method = parts.method.clone();
+        let headers = parts.headers.clone();
+
+        // Extract user agent
+        let user_agent = TypedHeader::<UserAgent>::from_request_parts(&mut parts, state)
+            .await
+            .map_err(ResponseError::BadRequest)?;
+
+        // Extract query
+        let query = if uri.query().is_some() {
+            Query::<T>::from_request_parts(&mut parts, state)
+                .await
+                .map_err(ResponseError::BadRequest)
+                .map_or(None, |v| Some(v))
+        } else {
+            None
+        };
 
         // Try to extract body if content type is form
-        let body = if let Some(v) = headers.get(header::CONTENT_TYPE) {
-            if v.eq(mime::APPLICATION_WWW_FORM_URLENCODED.as_ref()) {
-                Form::from_request(req, state)
-                    .await
-                    .map_or(None, |v| Some(v))
-            } else {
-                None
-            }
+        let body = if headers.get(header::CONTENT_TYPE).is_some() {
+            Form::from_request(Request::from_parts(parts, body), state)
+                .await
+                .map_or(None, |v| Some(v))
         } else {
             None
         };
@@ -106,6 +123,8 @@ where
         Ok(ArkoseSessionExt {
             uri,
             method,
+            query,
+            user_agent,
             headers,
             session,
             body,

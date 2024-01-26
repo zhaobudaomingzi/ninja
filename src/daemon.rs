@@ -22,7 +22,12 @@ pub(super) fn serve(mut args: ServeArgs, relative_path: bool) -> anyhow::Result<
     }
 
     let arkose_solver = match args.arkose_solver_key.as_ref() {
-        Some(key) => Some(ArkoseSolver::new(args.arkose_solver.clone(), key.clone())),
+        Some(client_key) => Some(ArkoseSolver::new(
+            args.arkose_solver,
+            client_key.clone(),
+            args.arkose_solver_url,
+            args.arkose_solver_limit,
+        )),
         None => None,
     };
 

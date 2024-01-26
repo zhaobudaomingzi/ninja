@@ -1,9 +1,7 @@
 mod token;
 
-use std::path::PathBuf;
-use std::str::FromStr;
-
 use crate::context::args::Args;
+use crate::context::arkose::har;
 use crate::serve::error::{ProxyError, ResponseError};
 use crate::{arkose, warn, with_context};
 use axum::body::Body;
@@ -12,6 +10,7 @@ use axum::response::{IntoResponse, Redirect, Response};
 use axum::routing::post;
 use axum::{response::Html, routing::get, Router};
 use axum::{Form, Json, TypedHeader};
+use std::str::FromStr;
 
 const COOKIE_NAME: &'static str = "har_token";
 const FIELD_FILE: &'static str = "files";
@@ -19,10 +18,10 @@ const FIELD_FILE: &'static str = "files";
 const LOGIN_PATH: &'static str = "/har/login";
 const UPLOAD_PATH: &'static str = "/har/upload";
 
-const LOGIN_PAGE: &'static str = include_str!("../../../../../frontend/har/login.html");
-const UPLOAD_PAGE: &'static str = include_str!("../../../../../frontend/har/upload.html");
-const SUCCESS_PAGE: &'static str = include_str!("../../../../../frontend/har/success.html");
-const ERROR_PAGE: &'static str = include_str!("../../../../../frontend/har/error.html");
+const LOGIN_PAGE: &'static str = include_str!("../../../../frontend/har/login.html");
+const UPLOAD_PAGE: &'static str = include_str!("../../../../frontend/har/upload.html");
+const SUCCESS_PAGE: &'static str = include_str!("../../../../frontend/har/success.html");
+const ERROR_PAGE: &'static str = include_str!("../../../../frontend/har/error.html");
 
 const FAILED_UPLOAD_TITLE: &'static str = "Failed to upload file";
 const FAILED_AUTH_TITLE: &'static str = "Failed Authenticate";
@@ -154,7 +153,7 @@ async fn post_upload(
             .await
             .map_err(ResponseError::InternalServerError)?;
 
-        if let Some(err) = arkose::har::parse_from_slice(&data).err() {
+        if let Some(err) = har::valid(&data).err() {
             warn!("upload har file check error: {}", err);
             return Ok(error_html(
                 FAILED_UPLOAD_TITLE,
@@ -164,8 +163,7 @@ async fn post_upload(
             .into_response());
         }
 
-        let har_path = with_context!(arkose_har_path, &_type.0 .0);
-        tokio::fs::write(har_path.dir_path.join(filename), data)
+        har::write_file(&_type.0 .0, &filename, data)
             .await
             .map_err(ResponseError::InternalServerError)?;
     }
@@ -186,9 +184,7 @@ async fn get_files(
         return Ok(Redirect::temporary(LOGIN_PATH).into_response());
     }
 
-    let dir = with_context!(arkose_har_path, &_type.0 .0).dir_path;
-
-    let mut dirs = tokio::fs::read_dir(&dir)
+    let mut dirs = har::read_dir(&_type.0 .0)
         .await
         .map_err(ResponseError::InternalServerError)?;
 
@@ -216,17 +212,11 @@ async fn delete_file(
         return Ok(Redirect::temporary(LOGIN_PATH).into_response());
     }
 
-    let dir = with_context!(arkose_har_path, &_type.0 .0).dir_path;
-
-    let file = &dir.join(&filename.filename);
-
-    // only accept har file
-    if let Some(err) = check_file_extension(&file).err() {
-        return Ok(err.into_response());
-    };
-
     // Try to delete file
-    if let Some(err) = tokio::fs::remove_file(file).await.err() {
+    if let Some(err) = har::delete_file(&_type.0 .0, &filename.filename)
+        .await
+        .err()
+    {
         return Ok(error_html(
             "File deleted failed",
             &format!("Your file has been failed to delete: {err}"),
@@ -252,34 +242,12 @@ async fn rename_file(
         return Ok(Redirect::temporary(LOGIN_PATH).into_response());
     }
 
-    let dir = with_context!(arkose_har_path, &_type.0 .0).dir_path;
+    let new_filename = &filename
+        .new_filename
+        .as_ref()
+        .ok_or(ResponseError::BadRequest(ProxyError::NewFilenameIsEmpty))?;
 
-    let old_file = PathBuf::from(&dir).join(&filename.filename);
-    let new_file = PathBuf::from(&dir).join(
-        &filename
-            .new_filename
-            .as_ref()
-            .ok_or(ResponseError::BadRequest(ProxyError::NewFilenameIsEmpty))?,
-    );
-
-    // only accept har file
-    if let Some(err) = check_file_extension(&new_file).err() {
-        return Ok(err.into_response());
-    };
-
-    if tokio::fs::try_exists(&new_file)
-        .await
-        .map_err(ResponseError::BadRequest)?
-    {
-        return Ok(error_html(
-            "File renamed failed",
-            "Your file has been failed to rename: file already exists",
-            false,
-        )
-        .into_response());
-    }
-
-    tokio::fs::rename(old_file, new_file)
+    har::rename_file(&_type.0 .0, &filename.filename, &new_filename)
         .await
         .map_err(ResponseError::BadRequest)?;
 
@@ -288,19 +256,6 @@ async fn rename_file(
         "Your file has been successfully renamed.",
     )
     .into_response())
-}
-
-fn check_file_extension(file: &PathBuf) -> Result<(), Html<String>> {
-    if let Some(ext) = file.extension() {
-        if ext != "har" {
-            return Err(error_html(
-                "File renamed failed",
-                "Your file has been failed to rename: invalid file extension",
-                false,
-            ));
-        }
-    }
-    Ok(())
 }
 
 use axum::headers::{Header, HeaderName, HeaderValue};
