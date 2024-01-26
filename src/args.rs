@@ -227,15 +227,10 @@ pub struct ServeArgs {
     #[cfg(feature = "limit")]
     pub(super) tb_enable: bool,
 
-    /// Token bucket store strategy (mem/redis)
+    /// Token bucket store strategy (mem/redb)
     #[clap(long, default_value = "mem", requires = "tb_enable")]
     #[cfg(feature = "limit")]
-    pub(super) tb_store_strategy: String,
-
-    /// Token bucket redis connection url
-    #[clap(long, default_value = "redis://127.0.0.1:6379", requires = "tb_enable", value_parser = parse::parse_url)]
-    #[cfg(feature = "limit")]
-    pub(super) tb_redis_url: String,
+    pub(super) tb_strategy: String,
 
     /// Token bucket capacity
     #[clap(long, default_value = "60", requires = "tb_enable")]

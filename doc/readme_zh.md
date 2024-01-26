@@ -317,7 +317,7 @@ Options:
       --enable-direct
           Enable direct connection [env: ENABLE_DIRECT=]
   -I, --impersonate-uas <IMPERSONATE_UAS>
-          Impersonate User-Agent, separate multiple ones with ","
+          Impersonate User-Agent, separate multiple ones with "," [env: IMPERSONATE_UA=]
       --cookie-store
           Enabled Cookie Store [env: COOKIE_STORE=]
       --fastest-dns
@@ -357,15 +357,17 @@ Options:
   -K, --arkose-har-upload-key <ARKOSE_HAR_UPLOAD_KEY>
           HAR file upload authenticate key
   -s, --arkose-solver <ARKOSE_SOLVER>
-          About ArkoseLabs solver platform [default: yescaptcha]
+          About ArkoseLabs solver platform [default: fcsrv]
   -k, --arkose-solver-key <ARKOSE_SOLVER_KEY>
           About the solver client key by ArkoseLabs
+      --arkose-solver-url <ARKOSE_SOLVER_URL>
+          About the solver client url by ArkoseLabs
+      --arkose-solver-limit <ARKOSE_SOLVER_LIMIT>
+          About the solver submit multiple image limit by ArkoseLabs [default: 1]
   -T, --tb-enable
           Enable token bucket flow limitation
-      --tb-store-strategy <TB_STORE_STRATEGY>
-          Token bucket store strategy (mem/redis) [default: mem]
-      --tb-redis-url <TB_REDIS_URL>
-          Token bucket redis connection url [default: redis://127.0.0.1:6379]
+      --tb-strategy <TB_STRATEGY>
+          Token bucket store strategy (mem/redb) [default: mem]
       --tb-capacity <TB_CAPACITY>
           Token bucket capacity [default: 60]
       --tb-fill-rate <TB_FILL_RATE>

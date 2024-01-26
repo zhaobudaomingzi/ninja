@@ -126,7 +126,7 @@ start_service() {
 		    args="$args --tb-redis-url $tb_redis_url"
         fi
 		if [ -n "$tb_store_strategy" ]; then
-		    args="$args --tb-store-strategy $tb_store_strategy"
+		    args="$args --tb-strategy $tb_store_strategy"
         fi
 		if [ -n "$tb_capacity" ]; then
 		    args="$args --tb-capacity $tb_capacity"

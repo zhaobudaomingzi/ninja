@@ -10,7 +10,7 @@ use crate::{
 use reqwest::Client;
 use std::sync::OnceLock;
 
-const WORKER_DIR: &str = ".ninja";
+pub const WORKER_DIR: &str = ".ninja";
 // Program context
 static CTX: OnceLock<Context> = OnceLock::new();
 
