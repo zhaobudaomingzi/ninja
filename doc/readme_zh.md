@@ -163,14 +163,16 @@ services:
   > 其中pk为arkose类型的ID，比如请求GPT4的Arkose，`/auth/arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`，若`GPT-4`开始强制blob参数，需要带上`AccessToken` -> `Authorization: Bearer xxxx`
 
 - Authorization
-  > 除了登录，都使用`Authorization: Bearer xxxx`
+
+  > 除了登录，都使用`Authorization: Bearer xxxx`，[Python Example](https://github.com/gngpp/ninja/blob/main/doc/authorization.md)
+
   - 登录: `/auth/token`，表单`option`可选参数，默认为`web`登录，返回`AccessToken`与`Session`；参数为`apple`/`platform`，返回`AccessToken`与`RefreshToken`
   - 刷新 `RefreshToken`: `POST /auth/refresh_token`，支持`platform`/`apple`撤销
   - 撤销 `RefreshToken`: `POST /auth/revoke_token`, 支持`platform`/`apple`撤销
   - 刷新 `Session`: `POST /auth/refresh_session`，使用`web`登录返回的`Session`刷新
   - 获取 `Sess token`: `POST /auth/sess_token`，使用`platform`的`AccessToken`获取
   - 获取 `Billing`: `GET /auth/billing`，使用`sess token`获取
-  
+
   `Web登录`默认返回一个名为: `__Secure-next-auth.session-token`的cookie，客户端只需要保存这个cookie，调用`/auth/refresh_session`也可以刷新`AccessToken`
 
   `RefreshToken`获取的方式，采用`Apple`平台`ChatGPT App`登录方式，原理是使用内置MITM代理。`Apple设备`连上代理即可开启`Apple平台`登录获取`RefreshToken`，仅适用于量小或者个人使用`（量大会封设备，慎用）`，详细使用请看启动参数说明。

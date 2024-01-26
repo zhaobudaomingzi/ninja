@@ -164,7 +164,8 @@ Currently OpenAI has updated `Login` which requires verification of `Arkose Toke
   > where pk is the arkose type ID, such as requesting Arkose for GPT4, `/auth/arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`. If `GPT-4` starts to force blob parameters, you need to bring `AccessToken` - > `Authorization: Bearer xxxx`
 
 - Authorization
-  > Except for login, use `Authorization: Bearer xxxx`
+  > Except for login, use `Authorization: Bearer xxxx`, [Python Example](https://github.com/gngpp/ninja/blob/main/doc/authorization.md)
+  
   - Login: `POST /auth/token`, form `option` optional parameter, default is `web` login, returns `AccessToken` and `Session`; parameter is `apple`/`platform`, returns `AccessToken` and `RefreshToken`
   - Refresh `RefreshToken`: `POST /auth/refresh_token`, support `platform`/`apple` revocation
   - Revoke `RefreshToken`: `POST /auth/revoke_token`, supports `platform`/`apple` revocation
