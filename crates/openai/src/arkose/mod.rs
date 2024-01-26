@@ -479,28 +479,24 @@ impl ArkoseToken {
         callback_data.push(format!("category=loaded"));
         callback_data.push(format!("action=game loaded"));
         callback_data.push(format!("session_token={session_token}"));
+
         // Print the parsed data
-        for (key, value) in parsed_data {
-            if key.eq("pk") {
-                callback_data.push(format!("data[public_key]={value}"));
-                let typed = Type::from_pk(value)?;
-                callback_data.push(format!("data[site]={}", typed.site_url()));
+        if let Some(pk) = parsed_data.get("pk") {
+            let typed = Type::from_pk(pk)?;
+            callback_data.push(format!("data[public_key]={pk}"));
+            callback_data.push(format!("data[site]={}", typed.site_url()));
+            let callback_query = callback_data.join("&");
+
+            let result = with_context!(arkose_client)
+                .get(format!("{}/fc/a/?{callback_query}", typed.origin_url()))
+                .timeout(std::time::Duration::from_secs(5))
+                .send()
+                .await?
+                .error_for_status();
+
+            if let Some(err) = result.err() {
+                warn!("funcaptcha callback error: {err}")
             }
-        }
-
-        let callback_query = callback_data.join("&");
-
-        let result = with_context!(arkose_client)
-            .get(format!(
-                "https://tcr9i.chat.openai.com/fc/a/?{callback_query}"
-            ))
-            .timeout(std::time::Duration::from_secs(5))
-            .send()
-            .await?
-            .error_for_status();
-
-        if let Some(err) = result.err() {
-            warn!("funcaptcha callback error: {err}")
         }
 
         Ok(())
