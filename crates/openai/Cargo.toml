@@ -34,7 +34,7 @@ moka = { version = "0.12.1", default-features = false, features = ["sync"], opti
 cidr = { version = "0.2.2", features = ["serde"] }
 
 # native db
-native_db = "0.5.3"
+native_db = { package = "native_db-32bit", version = "0.5.3" }
 native_model = "0.4.6"
 
 # stream
