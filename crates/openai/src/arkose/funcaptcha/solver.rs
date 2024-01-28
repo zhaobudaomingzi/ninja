@@ -114,7 +114,7 @@ struct ReqBody1<'a> {
     api_key: Option<&'a str>,
     #[serde(rename = "type")]
     typed: &'a str,
-    images: Option<Vec<String>>,
+    images: Option<Vec<&'a String>>,
 }
 
 #[derive(Serialize, Debug)]
@@ -122,9 +122,9 @@ struct ReqTask0<'a> {
     #[serde(rename = "type")]
     type_field: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
-    image: Option<String>,
+    image: Option<&'a String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    images: Option<Vec<String>>,
+    images: Option<Vec<&'a String>>,
     question: &'a str,
 }
 
@@ -132,10 +132,10 @@ struct ReqTask0<'a> {
 pub struct SubmitSolver<'a> {
     arkose_solver: &'a ArkoseSolver,
     #[builder(setter(into), default)]
-    image: Option<String>,
+    image: Option<&'a String>,
     #[builder(setter(into), default)]
-    images: Option<Vec<String>>,
-    question: String,
+    images: Option<Vec<&'a String>>,
+    question: &'a String,
 }
 
 pub async fn submit_task(submit_task: SubmitSolver<'_>) -> anyhow::Result<Vec<i32>> {
