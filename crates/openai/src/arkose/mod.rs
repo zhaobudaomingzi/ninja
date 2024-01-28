@@ -430,7 +430,7 @@ impl ArkoseToken {
                 .arkose_token(arkose_token)
                 .client(ctx.client)
                 .build();
-            return Ok(valid_arkose_token(arkose_solver, solver_context).await?);
+            return Ok(valid_arkose_token(arkose_solver, solver_context).await);
         }
 
         // If arkose solver is not empty, use bx
@@ -442,7 +442,7 @@ impl ArkoseToken {
                 .arkose_token(arkose_token)
                 .client(ctx.client)
                 .build();
-            return Ok(valid_arkose_token(arkose_solver, solver_context).await?);
+            return Ok(valid_arkose_token(arkose_solver, solver_context).await);
         }
 
         Err(ArkoseError::NoSolverAvailable.into())
@@ -506,25 +506,33 @@ impl ArkoseToken {
 async fn valid_arkose_token(
     arkose_solver: Option<&'static ArkoseSolver>,
     ctx: ArkoseSolverContext,
-) -> ArkoseResult<ArkoseToken> {
+) -> ArkoseToken {
+    // If success, return token
     if ctx.arkose_token.success() {
         // Submit token to funcaptcha callback
         let _ = ctx.arkose_token.callback().await;
-    } else {
-        // If arkose solver is not empty, use solver
-        if let Some(arkose_solver) = arkose_solver {
-            return submit_funcaptcha(&arkose_solver, ctx).await;
-        }
-        warn!("arkose token is invalid, but no solver is available.")
+        return ctx.arkose_token;
     }
 
-    Ok(ctx.arkose_token)
+    // If arkose solver is not empty, use solver
+    match submit_funcaptcha(arkose_solver, &ctx).await {
+        Ok(arkose_token) => {
+            return arkose_token;
+        }
+        Err(err) => {
+            warn!("Funcaptcha solver error: {err}");
+            return ctx.arkose_token;
+        }
+    }
 }
 
 async fn submit_funcaptcha(
-    arkose_solver: &'static ArkoseSolver,
-    ctx: ArkoseSolverContext,
+    arkose_solver: Option<&'static ArkoseSolver>,
+    ctx: &ArkoseSolverContext,
 ) -> ArkoseResult<ArkoseToken> {
+    // Try get arkose solver
+    let arkose_solver = arkose_solver.ok_or_else(|| ArkoseError::NoSolverAvailable)?;
+
     // Start challenge, return session
     let session = funcaptcha::start_challenge(&ctx).await?;
 
@@ -539,8 +547,8 @@ async fn submit_funcaptcha(
             for (_, fun) in funs.iter().enumerate() {
                 let submit_task = SubmitSolver::builder()
                     .arkose_solver(arkose_solver)
-                    .question(fun.instructions.clone())
-                    .image(fun.image.clone())
+                    .question(&fun.instructions)
+                    .image(&fun.image)
                     .build();
                 answers.extend(funcaptcha::solver::submit_task(submit_task).await?)
             }
@@ -560,13 +568,17 @@ async fn submit_funcaptcha(
                 let images_chunks = data
                     .1
                     .chunks(arkose_solver.limit)
-                    .map(|item| item.iter().map(|item| item.image.clone()).collect())
-                    .collect::<Vec<Vec<String>>>();
+                    .map(|item| {
+                        item.iter()
+                            .map(|item| &item.image)
+                            .collect::<Vec<&String>>()
+                    })
+                    .collect::<Vec<Vec<&String>>>();
 
                 for (_, images) in images_chunks.into_iter().enumerate() {
                     let submit_task = SubmitSolver::builder()
                         .arkose_solver(arkose_solver)
-                        .question(data.0.clone())
+                        .question(&data.0)
                         .images(images)
                         .build();
                     answers.extend(funcaptcha::solver::submit_task(submit_task).await?)
