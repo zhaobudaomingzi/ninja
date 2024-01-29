@@ -20,8 +20,6 @@ pub struct ArkoseVersion {
     version: String,
     ref_enforcement_js: String,
     ref_enforcement_html: String,
-    enforcement_js: String,
-    enforcement_html: String,
 }
 
 impl ArkoseVersion {
@@ -35,14 +33,6 @@ impl ArkoseVersion {
 
     pub fn ref_enforcement_html(&self) -> &str {
         &self.ref_enforcement_html
-    }
-
-    pub fn enforcement_js(&self) -> &str {
-        &self.enforcement_js
-    }
-
-    pub fn enforcement_html(&self) -> &str {
-        &self.enforcement_html
     }
 
     pub fn pk(&self) -> &str {
@@ -81,20 +71,6 @@ pub(super) async fn latest_arkose_version(typed: Type) -> Result<ArkoseVersion> 
     let ref_enforcement_js = format!("/v2/{}", ref_js);
     let ref_enforcement_html = format!("/v2/{}", ref_html.as_str());
 
-    let enforcement_js = client
-        .get(format!("{}{}", typed.origin_url(), ref_enforcement_js))
-        .send()
-        .await?
-        .text()
-        .await?;
-
-    let enforcement_html = client
-        .get(format!("{}{}", typed.origin_url(), ref_enforcement_html))
-        .send()
-        .await?
-        .text()
-        .await?;
-
     Ok(ArkoseVersion {
         pk: typed.pk().to_owned(),
         version: version_cap
@@ -104,7 +80,5 @@ pub(super) async fn latest_arkose_version(typed: Type) -> Result<ArkoseVersion> 
             .to_string(),
         ref_enforcement_js,
         ref_enforcement_html,
-        enforcement_js,
-        enforcement_html,
     })
 }
