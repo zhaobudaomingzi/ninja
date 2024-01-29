@@ -55,6 +55,9 @@ pub enum ArkoseError {
     #[error("Invalid arkose token ({0})")]
     InvalidArkoseToken(String),
 
+    #[error("Arkose version not found")]
+    ArkoseVersionNotFound,
+
     /// Header parse error
     #[error("Invalid header ({0})")]
     InvalidHeader(#[from] reqwest::header::InvalidHeaderValue),

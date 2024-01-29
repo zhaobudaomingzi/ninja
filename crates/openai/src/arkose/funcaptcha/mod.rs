@@ -6,7 +6,8 @@ use self::model::{Challenge, ConciseChallenge, FunCaptcha, RequestChallenge};
 use super::{crypto, ArkoseSolverContext};
 use crate::arkose::error::ArkoseError;
 use crate::arkose::funcaptcha::model::SubmitChallenge;
-use crate::{now_duration, warn};
+use crate::context::arkose::version::ArkoseVersion;
+use crate::{now_duration, warn, with_context};
 use reqwest::header;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -53,6 +54,9 @@ pub async fn start_challenge(ctx: &ArkoseSolverContext) -> FunResult<Session> {
     headers.insert(header::DNT, header::HeaderValue::from_static("1"));
 
     let mut session = Session {
+        version: with_context!(arkose_context)
+            .version(ctx.typed)
+            .ok_or_else(|| ArkoseError::ArkoseVersionNotFound)?,
         origin: ctx.typed.origin_url(),
         sid,
         session_token,
@@ -94,6 +98,7 @@ pub async fn start_challenge(ctx: &ArkoseSolverContext) -> FunResult<Session> {
 #[derive(Debug)]
 pub struct Session {
     origin: &'static str,
+    version: Arc<ArkoseVersion>,
     client: reqwest::Client,
     sid: String,
     session_token: String,
@@ -172,10 +177,7 @@ impl Session {
         self.global_callback().await?;
         // Init Callback
         self.callback(
-            &format!(
-                "{}/v2/2.3.4/enforcement.c70df15cb97792b18c2f4978b68954a0.html",
-                self.origin
-            ),
+            &format!("{}{}", self.origin, self.version.ref_enforcement_html()),
             "Site URL",
             None,
             None,

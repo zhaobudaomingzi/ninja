@@ -1,6 +1,9 @@
 use super::{
     args::Args,
-    arkose::har::{HarProvider, HAR},
+    arkose::{
+        har::{HarProvider, HAR},
+        ArkoseVersionContext,
+    },
     preauth::PreauthCookieProvider,
     CfTurnstile, Context, CTX,
 };
@@ -34,6 +37,7 @@ fn init_context(args: Args) -> Context {
             .expect("Failed to initialize the requesting arkose client"),
         preauth_provider: args.pbind.is_some().then(|| PreauthCookieProvider::new()),
         arkose_endpoint: args.arkose_endpoint,
+        arkose_context: ArkoseVersionContext::new(),
         arkose_solver: args.arkose_solver,
         arkose_har_upload_key: args.arkose_har_upload_key,
         arkose_gpt3_experiment: args.arkose_gpt3_experiment,

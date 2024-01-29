@@ -43,6 +43,8 @@ pub struct Context {
     auth_client: ClientRoundRobinBalancer,
     /// Requesting arkose client
     arkose_client: ClientRoundRobinBalancer,
+    /// Arkoselabs context
+    arkose_context: arkose::ArkoseVersionContext<'static>,
     /// arkoselabs solver
     arkose_solver: Option<ArkoseSolver>,
     /// HAR file upload authenticate key
@@ -138,5 +140,10 @@ impl Context {
     /// Get the arkose gpt3 experiment solver
     pub fn arkose_gpt3_experiment_solver(&self) -> bool {
         self.arkose_gpt3_experiment_solver
+    }
+
+    /// Get the arkose context
+    pub fn arkose_context(&self) -> &arkose::ArkoseVersionContext<'static> {
+        &self.arkose_context
     }
 }

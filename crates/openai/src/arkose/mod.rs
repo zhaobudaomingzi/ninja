@@ -243,6 +243,10 @@ impl ArkoseToken {
             Type::Platform => (PLATFORM_BX, "lightbox"),
         };
 
+        let version = with_context!(arkose_context)
+            .version(ctx.typed)
+            .ok_or_else(|| ArkoseError::ArkoseVersionNotFound)?;
+
         let site = ctx.typed.site_url();
         let pk = ctx.typed.pk();
 
@@ -270,7 +274,7 @@ impl ArkoseToken {
             ("public_key", pk.to_owned()),
             ("site", site.to_owned()),
             ("userbrowser", bv.to_owned()),
-            ("capi_version", "2.3.4".to_owned()),
+            ("capi_version", version.version().to_owned()),
             ("capi_mode", capi_mode.to_owned()),
             ("style_theme", "default".to_owned()),
             ("rnd", rand::thread_rng().gen::<f64>().to_string()),
@@ -326,6 +330,10 @@ impl ArkoseToken {
     pub async fn new_from_har(ctx: &mut ArkoseContext) -> anyhow::Result<Self> {
         let regex = get_or_init_regex().await;
 
+        let version = with_context!(arkose_context)
+            .version(ctx.typed)
+            .ok_or_else(|| ArkoseError::ArkoseVersionNotFound)?;
+
         let mut entry = har::get_entry(&ctx.typed)?;
 
         let bt = now_duration()?.as_secs();
@@ -340,7 +348,9 @@ impl ArkoseToken {
         );
 
         // Update capi_version
-        entry.body.push_str(&format!("&capi_version=2.3.4"));
+        entry
+            .body
+            .push_str(&format!("&capi_version={}", version.version()));
 
         // Update bda entry
         entry.body.push_str(&format!(
