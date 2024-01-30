@@ -33,13 +33,21 @@ impl ArkoseVersionContext<'_> {
             builder
         });
 
+        let path = home_dir()
+            .unwrap_or(PathBuf::new())
+            .join(WORKER_DIR)
+            .join("arkose.db");
+
+        if let Some(p) = path.parent() {
+            // If parent directory does not exist, create it
+            if !p.exists() {
+                std::fs::create_dir_all(p)
+                    .expect(&format!("Failed to create directory: {}", p.display()));
+            }
+        }
+
         let db = builder
-            .create(
-                home_dir()
-                    .unwrap_or(PathBuf::new())
-                    .join(WORKER_DIR)
-                    .join("arkose.db"),
-            )
+            .create(path)
             .expect("Failed to create arkose database");
 
         Self {
