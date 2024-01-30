@@ -123,9 +123,11 @@ Sending `GPT-4/GPT-3.5/Creating API-Key` dialog requires sending `Arkose Token` 
 
 1) Use HAR
 
-- Supports HAR feature pooling, can upload multiple HARs at the same time, and use rotation training strategy
-
-The `ChatGPT` official website sends a `GPT-4` session message, and the browser `F12` downloads the `https://tcr9i.chat.openai.com/fc/gt2/public_key/35536E1E-65B4-4D96-9D97-6ADB7EFF8147` interface. HAR log file, use the startup parameter `--arkose-gpt4-har-dir` to specify the HAR directory path to use (if you do not specify a path, use the default path `~/.ninja/gpt4`, you can directly upload and update HAR ), the same method applies to `GPT-3.5` and other types. Supports WebUI to upload and update HAR, request path: `/har/upload`, optional upload authentication parameter: `--arkose-har-upload-key`
+- Support HAR feature pooling, multiple HAR can be uploaded simultaneously, using round-robin strategy. The following is the method to obtain the HAR file:
+  - First, log in to the `ChatGPT` GPT4 question interface, press the `F12` key, and the browser console will open. Find `network` and click with the left mouse button (If your console is in Chinese, it will be displayed as `网络`), and the browser's network capture interface will switch to.
+  - With the console open, send a `GPT-4` session message, then find `filter` in the capture interface (If your console is in Chinese, it will be displayed as `过滤`), enter this address for filtering: `https://tcr9i.chat.openai.com/fc/gt2/public_key/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`
+  - At least one record will be filtered out. Randomly select one and download the HAR log record file of this interface. The specific operation is: right-click on this record, then find `Save all as HAR with content` (If your console is in Chinese, it will be displayed as `以 HAR 格式保存所有内容`).
+  - Use the startup parameter `--arkose-gpt4-har-dir` to specify the HAR directory path (if no path is specified, the default path `~/.ninja/gpt4` will be used), and directly upload and update the HAR. The same method applies to `GPT-3.5` and other types. Support WebUI for uploading and updating HAR, request path: `/har/upload`, optional authentication parameter: `--arkose-har-upload-key`.
 
 2) Use [Fcsrv](https://github.com/gngpp/fcsrv) / [YesCaptcha](https://yescaptcha.com/i/1Cc5i4) / [CapSolver](https://dashboard.capsolver.com/passport/register?inviteCode=y7CtB_a-3X6d)
 
