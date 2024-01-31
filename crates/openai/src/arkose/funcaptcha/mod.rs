@@ -2,7 +2,7 @@ mod breaker;
 pub mod model;
 pub mod solver;
 
-use self::model::{Challenge, ConciseChallenge, FunCaptcha, RequestChallenge};
+use self::model::{Challenge, ConciseChallenge, FunCaptcha, RequestChallenge, TGuess};
 use super::{crypto, ArkoseSolverContext};
 use crate::arkose::error::ArkoseError;
 use crate::arkose::funcaptcha::model::SubmitChallenge;
@@ -62,9 +62,10 @@ pub async fn start_challenge(ctx: &ArkoseSolverContext) -> FunResult<Session> {
         session_token,
         funcaptcha: None,
         challenge: None,
-        client: ctx.client.clone(),
         game_type: 0,
         headers,
+        tguess_endpoint: with_context!(arkose_solver_tguess_endpoint),
+        client: ctx.client.clone(),
     };
 
     // Start funcaptcha challenge
@@ -99,7 +100,6 @@ pub async fn start_challenge(ctx: &ArkoseSolverContext) -> FunResult<Session> {
 pub struct Session {
     origin: &'static str,
     version: Arc<ArkoseVersion>,
-    client: reqwest::Client,
     sid: String,
     session_token: String,
     headers: header::HeaderMap,
@@ -107,6 +107,8 @@ pub struct Session {
     challenge: Option<Challenge>,
     funcaptcha: Option<Arc<Vec<FunCaptcha>>>,
     game_type: u32,
+    tguess_endpoint: Option<&'static str>,
+    client: reqwest::Client,
 }
 
 impl Session {
@@ -277,6 +279,27 @@ impl Session {
         Ok(concise_challenge)
     }
 
+    async fn tguess(&self, guess: &[i32], session_token: &str) -> FunResult<Option<String>> {
+        if let Some(ref c) = self.challenge {
+            if let (Some(dapib_url), Some(tguess_endpoint)) = (&c.dapib_url, self.tguess_endpoint) {
+                let resp = self
+                    .client
+                    .post(tguess_endpoint)
+                    .json(&TGuess {
+                        session_token,
+                        guess,
+                        dapib_url,
+                    })
+                    .send()
+                    .await?;
+                let tguess = resp.text().await.map_err(ArkoseError::FaieldTGuess)?;
+                return Ok(Some(crypto::encrypt(&tguess, session_token)?));
+            }
+        }
+
+        Ok(None)
+    }
+
     pub async fn submit_answer(&self, answers: Vec<i32>) -> FunResult<()> {
         let mut answer_index = Vec::with_capacity(answers.len());
         let c_ui = &self
@@ -285,6 +308,8 @@ impl Session {
             .ok_or_else(|| ArkoseError::UnknownChallenge)?
             .game_data
             .custom_gui;
+
+        let tguess = self.tguess(answers.as_slice(), &self.session_token).await?;
 
         for answer in answers {
             let answer = breaker::hanlde_answer(
@@ -306,6 +331,7 @@ impl Session {
                 .as_ref()
                 .ok_or_else(|| ArkoseError::UnknownChallenge)?
                 .challenge_id,
+            tguess,
             guess: &crypto::encrypt(&format!("[{answer}]"), &self.session_token)?,
             render_type: "canvas",
             analytics_tier: 40,

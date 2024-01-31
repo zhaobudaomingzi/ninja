@@ -134,7 +134,7 @@ Sending `GPT-4/GPT-3.5/Creating API-Key` dialog requires sending `Arkose Token` 
 
 - `Fcsrv` / `YesCaptcha` / `CapSolver` is recommended to be used with HAR. When the verification code is generated, the parser is called for processing.
 
-The platform performs verification code parsing, and the startup parameter `--arkose-solver` selects the platform (default uses `Fcsrv`), `--arkose-solver-key` fills in the `Client Key`, and selects the customized submission node URL, for example: `http://localhost:8000/task`, `Fcsrv`/`YesCaptcha`/`CapSolver` are supported, `Fcsrv`/`YesCaptcha`/`CapSolver` is supported, `Fcsrv`/`YesCaptcha`/`CapSolver` Everyone supports it. Say important things three times.
+The platform performs verification code parsing, and the startup parameter `--arkose-solver` selects the platform (default uses `Fcsrv`), `--arkose-solver-key` fills in the `Client Key`, and selects the customized submission node URL, for example: `--arkose-solver-endpoint http://localhost:8000/task`, `Fcsrv`/`YesCaptcha`/`CapSolver` are supported, `Fcsrv`/`YesCaptcha`/`CapSolver` is supported, `Fcsrv`/`YesCaptcha`/`CapSolver` Everyone supports it. Say important things three times.
 
 Currently OpenAI has updated `Login` which requires verification of `Arkose Token`. The solution is the same as `GPT-4`. Fill in the startup parameters and specify the HAR file `--arkose-auth-har-dir`. To create an API-Key, you need to upload the HAR feature file related to the Platform. The acquisition method is the same as above.
 
@@ -363,10 +363,12 @@ Options:
           About ArkoseLabs solver platform [default: fcsrv]
   -k, --arkose-solver-key <ARKOSE_SOLVER_KEY>
           About the solver client key by ArkoseLabs
-      --arkose-solver-url <ARKOSE_SOLVER_URL>
-          About the solver client url by ArkoseLabs
+      --arkose-solver-endpoint <ARKOSE_SOLVER_ENDPOINT>
+          About the solver client endpoint by ArkoseLabs
       --arkose-solver-limit <ARKOSE_SOLVER_LIMIT>
           About the solver submit multiple image limit by ArkoseLabs [default: 1]
+      --arkose-solver-tguess-endpoint <ARKOSE_SOLVER_TGUESS_ENDPOINT>
+          About the solver tguess endpoint by ArkoseLabs
   -T, --tb-enable
           Enable token bucket flow limitation
       --tb-strategy <TB_STRATEGY>

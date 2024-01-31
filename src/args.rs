@@ -214,13 +214,17 @@ pub struct ServeArgs {
     #[clap(short = 'k', long)]
     pub(super) arkose_solver_key: Option<String>,
 
-    /// About the solver client url by ArkoseLabs
+    /// About the solver client endpoint by ArkoseLabs
     #[clap(long, value_parser = parse::parse_url, requires = "arkose_solver_key")]
-    pub(super) arkose_solver_url: Option<String>,
+    pub(super) arkose_solver_endpoint: Option<String>,
 
     /// About the solver submit multiple image limit by ArkoseLabs
     #[clap(long, default_value = "1", requires = "arkose_solver_key")]
     pub(super) arkose_solver_limit: usize,
+
+    /// About the solver tguess endpoint by ArkoseLabs
+    #[clap(long, value_parser = parse::parse_url)]
+    pub(super) arkose_solver_tguess_endpoint: Option<String>,
 
     /// Enable token bucket flow limitation
     #[clap(short = 'T', long)]

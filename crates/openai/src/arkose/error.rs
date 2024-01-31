@@ -54,6 +54,8 @@ pub enum ArkoseError {
     UnknownChallenge,
     #[error("Invalid arkose token ({0})")]
     InvalidArkoseToken(String),
+    #[error("Faield to get tguess ({0})")]
+    FaieldTGuess(reqwest::Error),
 
     #[error("Arkose version not found")]
     ArkoseVersionNotFound,

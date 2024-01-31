@@ -73,10 +73,10 @@ impl ArkoseVersionContext<'_> {
 
     /// Run a periodic task to upgrade the arkose version
     pub async fn periodic_upgrade(&self) {
+        info!("Arkose Periodic task is running");
         let mut interval = interval(Duration::from_secs(INTERVAL_SECONDS.into()));
         loop {
             interval.tick().await;
-            info!("Arkose Periodic task is running");
             self.upgrade().await;
         }
     }

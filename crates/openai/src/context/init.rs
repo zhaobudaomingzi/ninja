@@ -51,6 +51,7 @@ fn init_context(args: Args) -> Context {
                 secret_key,
             })
         }),
+        arkose_solver_tguess_endpoint: args.arkose_solver_tguess_endpoint,
     }
 }
 

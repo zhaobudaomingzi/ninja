@@ -132,7 +132,7 @@ services:
 
 - `Fcsrv` / `YesCaptcha` / `CapSolver`推荐搭配HAR使用，出验证码则调用解析器处理
 
-平台进行验证码解析，启动参数`--arkose-solver`选择平台（默认使用`Fcsrv`），`--arkose-solver-key` 填写`Client Key`，选择自定义的提交节点URL，例如：`http://localhost:8000/task`，`Fcsrv`/`YesCaptcha`/`CapSolver`都支持，`Fcsrv`/`YesCaptcha`/`CapSolver`都支持，`Fcsrv`/`YesCaptcha`/`CapSolver`都支持，重要的事情说三遍。
+平台进行验证码解析，启动参数`--arkose-solver`选择平台（默认使用`Fcsrv`），`--arkose-solver-key` 填写`Client Key`，选择自定义的提交节点URL，例如：`--arkose-solver-endpoint http://localhost:8000/task`，`Fcsrv`/`YesCaptcha`/`CapSolver`都支持，`Fcsrv`/`YesCaptcha`/`CapSolver`都支持，`Fcsrv`/`YesCaptcha`/`CapSolver`都支持，重要的事情说三遍。
 
 目前OpenAI已经更新`登录`需要验证`Arkose Token`，解决方式同`GPT-4`，填写启动参数指定HAR文件`--arkose-auth-har-dir`。创建API-Key需要上传Platform相关的HAR特征文件，获取方式同上。
 
@@ -362,10 +362,12 @@ Options:
           About ArkoseLabs solver platform [default: fcsrv]
   -k, --arkose-solver-key <ARKOSE_SOLVER_KEY>
           About the solver client key by ArkoseLabs
-      --arkose-solver-url <ARKOSE_SOLVER_URL>
-          About the solver client url by ArkoseLabs
+      --arkose-solver-endpoint <ARKOSE_SOLVER_ENDPOINT>
+          About the solver client endpoint by ArkoseLabs
       --arkose-solver-limit <ARKOSE_SOLVER_LIMIT>
           About the solver submit multiple image limit by ArkoseLabs [default: 1]
+      --arkose-solver-tguess-endpoint <ARKOSE_SOLVER_TGUESS_ENDPOINT>
+          About the solver tguess endpoint by ArkoseLabs
   -T, --tb-enable
           Enable token bucket flow limitation
       --tb-strategy <TB_STRATEGY>

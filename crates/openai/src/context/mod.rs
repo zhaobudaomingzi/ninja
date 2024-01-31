@@ -63,6 +63,8 @@ pub struct Context {
     arkose_gpt3_experiment: bool,
     /// Enable Arkose GPT-3.5 experiment solver
     arkose_gpt3_experiment_solver: bool,
+    /// Arkose solver tguess endpoint
+    arkose_solver_tguess_endpoint: Option<String>,
     /// PreAuth cookie cache
     preauth_provider: Option<PreauthCookieProvider>,
 }
@@ -145,5 +147,10 @@ impl Context {
     /// Get the arkose context
     pub fn arkose_context(&self) -> &arkose::ArkoseVersionContext<'static> {
         &self.arkose_context
+    }
+
+    /// Get the arkose solver tguess endpoint, Example: https://tguess.arkoselabs.com
+    pub fn arkose_solver_tguess_endpoint(&self) -> Option<&str> {
+        self.arkose_solver_tguess_endpoint.as_deref()
     }
 }
