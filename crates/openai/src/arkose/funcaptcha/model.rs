@@ -72,6 +72,7 @@ pub(super) struct SubmitChallenge<'a> {
     pub session_token: &'a str,
     pub sid: &'a str,
     pub game_token: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub tguess: Option<String>,
     pub guess: &'a str,
     pub render_type: &'static str,
