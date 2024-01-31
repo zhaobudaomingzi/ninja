@@ -74,7 +74,7 @@ pub(super) struct SubmitChallenge<'a> {
     pub game_token: &'a str,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tguess: Option<String>,
-    pub guess: &'a str,
+    pub guess: String,
     pub render_type: &'static str,
     pub analytics_tier: i32,
     pub bio: &'static str,
@@ -84,5 +84,10 @@ pub(super) struct SubmitChallenge<'a> {
 pub(super) struct TGuess<'a> {
     pub session_token: &'a str,
     pub dapib_url: &'a str,
-    pub guess: &'a [i32],
+    pub guess: Vec<String>,
+}
+
+#[derive(Deserialize)]
+pub(super) struct TGuessResp {
+    pub tguess: Vec<HashMap<String, String>>,
 }

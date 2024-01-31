@@ -598,7 +598,13 @@ async fn submit_funcaptcha(
     };
 
     // Submit answers
-    let _ = session.submit_answer(answers).await?;
+    let _ = session.submit_answer(answers.as_slice()).await?;
+
+    // Store funcaptcha solved image
+    if let Some(dir) = with_context!(arkose_solver_image_dir) {
+        tokio::spawn(session.save_funcaptcha_to_dir(dir, answers));
+    }
+
     let new_token = ctx.arkose_token.value().replace("at=40", "at=40|sup=1");
     Ok(ArkoseToken::from(new_token))
 }

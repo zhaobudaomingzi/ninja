@@ -37,9 +37,16 @@ pub enum ArkoseError {
     #[error("Deserialize error {0:?}")]
     DeserializeError(reqwest::Error),
 
+    /// Base64 decode error
+    #[error("Base64 decode error {0:?}")]
+    Base64DecodeError(#[from] base64::DecodeError),
+
     /// Serialize error
     #[error("Serialize error {0:?}")]
     SerializeError(#[from] serde_urlencoded::ser::Error),
+
+    #[error("Serialize error ({0:?})")]
+    SerializeError2(#[from] serde_json::Error),
 
     /// Funcaptcha error
     #[error("Funcaptcha submit error ({0})")]

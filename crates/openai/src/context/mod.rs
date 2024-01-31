@@ -8,7 +8,10 @@ use crate::{
     arkose::funcaptcha::solver::ArkoseSolver, auth::AuthClient, client::ClientRoundRobinBalancer,
 };
 use reqwest::Client;
-use std::sync::OnceLock;
+use std::{
+    path::{Path, PathBuf},
+    sync::OnceLock,
+};
 
 pub const WORKER_DIR: &str = ".ninja";
 // Program context
@@ -65,6 +68,8 @@ pub struct Context {
     arkose_gpt3_experiment_solver: bool,
     /// Arkose solver tguess endpoint
     arkose_solver_tguess_endpoint: Option<String>,
+    /// Arkose solver image store directory
+    arkose_solver_image_dir: Option<PathBuf>,
     /// PreAuth cookie cache
     preauth_provider: Option<PreauthCookieProvider>,
 }
@@ -152,5 +157,10 @@ impl Context {
     /// Get the arkose solver tguess endpoint, Example: https://tguess.arkoselabs.com
     pub fn arkose_solver_tguess_endpoint(&self) -> Option<&str> {
         self.arkose_solver_tguess_endpoint.as_deref()
+    }
+
+    /// Get the arkose solver image store directory, Example: /home/user/.ninja/image
+    pub fn arkose_solver_image_dir(&self) -> Option<&Path> {
+        self.arkose_solver_image_dir.as_deref()
     }
 }

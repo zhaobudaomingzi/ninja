@@ -42,6 +42,8 @@ fn init_context(args: Args) -> Context {
         arkose_har_upload_key: args.arkose_har_upload_key,
         arkose_gpt3_experiment: args.arkose_gpt3_experiment,
         arkose_gpt3_experiment_solver: args.arkose_gpt3_experiment_solver,
+        arkose_solver_tguess_endpoint: args.arkose_solver_tguess_endpoint,
+        arkose_solver_image_dir: args.arkose_solver_image_dir,
         enable_file_proxy: args.enable_file_proxy,
         auth_key: args.auth_key,
         visitor_email_whitelist: args.visitor_email_whitelist,
@@ -51,7 +53,6 @@ fn init_context(args: Args) -> Context {
                 secret_key,
             })
         }),
-        arkose_solver_tguess_endpoint: args.arkose_solver_tguess_endpoint,
     }
 }
 

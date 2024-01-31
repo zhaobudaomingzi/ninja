@@ -226,6 +226,10 @@ pub struct ServeArgs {
     #[clap(long, value_parser = parse::parse_url)]
     pub(super) arkose_solver_tguess_endpoint: Option<String>,
 
+    /// About the solver image store directory by ArkoseLabs
+    #[clap(long, value_parser = parse::parse_dir_path)]
+    pub(super) arkose_solver_image_dir: Option<PathBuf>,
+
     /// Enable token bucket flow limitation
     #[clap(short = 'T', long)]
     #[cfg(feature = "limit")]
@@ -253,22 +257,22 @@ pub struct ServeArgs {
 
     /// Preauth MITM server bind address
     #[clap(
-        short = 'B',
-        long,
-        env = "PREAUTH_BIND",
-        value_parser = parse::parse_socket_addr,
+    short = 'B',
+    long,
+    env = "PREAUTH_BIND",
+    value_parser = parse::parse_socket_addr,
     )]
     pub(super) pbind: Option<std::net::SocketAddr>,
 
     /// Preauth MITM server upstream proxy
     /// Supports: http/https/socks5/socks5h
     #[clap(
-        short = 'X',
-        long,
-        env = "PREAUTH_UPSTREAM",
-        value_parser = parse::parse_url,
-        requires = "pbind",
-        verbatim_doc_comment
+    short = 'X',
+    long,
+    env = "PREAUTH_UPSTREAM",
+    value_parser = parse::parse_url,
+    requires = "pbind",
+    verbatim_doc_comment
     )]
     pub(super) pupstream: Option<String>,
 
