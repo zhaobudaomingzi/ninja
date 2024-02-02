@@ -610,12 +610,8 @@ fn render_template(name: &str, context: &tera::Context) -> Result<Response<Body>
         .get_or_init(|| {
             let mut tera = tera::Tera::default();
             tera.add_raw_templates(vec![
-                (TEMP_404, include_str!("../../../../frontend/404.htm")),
                 (TEMP_AUTH, include_str!("../../../../frontend/auth.htm")),
                 (TEMP_LOGIN, include_str!("../../../../frontend/login.htm")),
-                (TEMP_CHAT, include_str!("../../../../frontend/chat.htm")),
-                (TEMP_DETAIL, include_str!("../../../../frontend/detail.htm")),
-                (TEMP_SHARE, include_str!("../../../../frontend/share.htm")),
             ])
             .expect("The static template failed to load");
             tera
