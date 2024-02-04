@@ -156,7 +156,7 @@ impl TryFrom<RefreshToken> for Token {
         let profile = Profile::try_from(value.id_token.as_str())?;
         Ok(Self {
             access_token: value.access_token,
-            refresh_token: Some(value.refresh_token),
+            refresh_token: value.refresh_token,
             expires: now_duration()?.as_secs() as i64 + value.expires_in,
             user_id: profile.https_api_openai_com_auth.user_id,
             name: profile.name,

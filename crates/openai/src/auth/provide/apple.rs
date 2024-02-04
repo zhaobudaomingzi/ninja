@@ -317,11 +317,7 @@ impl AuthProvider for AppleAuthProvider {
             .send()
             .await?;
 
-        let mut token = AuthClient::response_handle::<model::RefreshToken>(resp).await?;
-        // Set the refresh token.
-        token.refresh_token = refresh_token.to_owned();
-
-        Ok(token)
+        Ok(AuthClient::response_handle::<model::RefreshToken>(resp).await?)
     }
 
     async fn do_revoke_token(&self, refresh_token: &str) -> AuthResult<()> {

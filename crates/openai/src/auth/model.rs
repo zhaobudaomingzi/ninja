@@ -68,8 +68,7 @@ pub struct SessionAccessToken {
 #[derive(Serialize, Deserialize)]
 pub struct RefreshToken {
     pub access_token: String,
-    #[serde(default)]
-    pub refresh_token: String,
+    pub refresh_token: Option<String>,
     pub id_token: String,
     pub expires_in: i64,
 }
