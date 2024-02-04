@@ -44,7 +44,7 @@ async fn sending_graceful_shutdown_signal(handle: Handle, signal: &'static str) 
     info!("{signal} received: starting graceful shutdown");
 
     // Signal the server to shutdown using Handle.
-    handle.graceful_shutdown(Some(Duration::from_secs(30)));
+    handle.graceful_shutdown(Some(Duration::from_secs(3)));
 
     // Print alive connection count every second.
     loop {
