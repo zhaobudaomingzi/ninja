@@ -63,12 +63,13 @@ fn print_boot_message(inner: &Args) {
     info!("Concurrent limit: {}", inner.concurrent_limit);
     info!("Timeout {} seconds", inner.timeout);
     info!("Connect timeout {} seconds", inner.connect_timeout);
-    info!("TCP keepalive: {}", inner.no_keepalive.not());
     info!("Keepalive {} seconds", inner.tcp_keepalive);
+    info!("TCP keepalive: {}", inner.no_keepalive.not());
     info!("Cookie store: {}", inner.cookie_store);
-    info!("Direct connection: {}", inner.enable_direct);
-    info!("File endpoint: {}", inner.enable_file_proxy);
-    info!("Arkose token endpoint: {}", inner.enable_arkose_proxy);
+    info!("Enable direct connection: {}", inner.enable_direct);
+    info!("Enable WebUI: {}", inner.enable_webui);
+    info!("Enable File endpoint: {}", inner.enable_file_proxy);
+    info!("Enable Arkose token endpoint: {}", inner.enable_arkose_proxy);
     info!(
         "ArkoseLabs GPT-3.5 experiment: {}",
         inner.arkose_gpt3_experiment

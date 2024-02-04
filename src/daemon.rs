@@ -69,7 +69,7 @@ pub(super) fn serve(mut args: ServeArgs, relative_path: bool) -> anyhow::Result<
         .visitor_email_whitelist(args.visitor_email_whitelist)
         .cf_site_key(args.cf_site_key)
         .cf_secret_key(args.cf_secret_key)
-        .enable_webui(!args.enable_webui)
+        .enable_webui(args.enable_webui)
         .arkose_endpoint(args.arkose_endpoint)
         .arkose_gpt3_experiment(args.arkose_gpt3_experiment)
         .arkose_gpt3_experiment_solver(args.arkose_gpt3_experiment_solver)
