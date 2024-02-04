@@ -10,19 +10,6 @@ mod signal;
 mod turnstile;
 mod whitelist;
 
-use axum::body::Body;
-use axum::extract::Path;
-use axum::headers::authorization::Bearer;
-use axum::headers::Authorization;
-use axum::http::Response;
-use axum::http::StatusCode;
-use axum::response::IntoResponse;
-use axum::routing::get;
-use axum::routing::{any, post};
-use axum::Router;
-use axum::{Json, TypedHeader};
-use axum_server::{AddrIncomingConfig, Handle};
-
 use self::proxy::ext::RequestExt;
 use self::proxy::ext::SendRequestExt;
 use self::proxy::resp::response_convert;
@@ -41,10 +28,23 @@ use crate::serve::error::ResponseError;
 use crate::serve::middleware::tokenbucket::{Strategy, TokenBucketLimitContext};
 use crate::{info, warn, with_context};
 use crate::{URL_CHATGPT_API, URL_PLATFORM_API};
+use axum::body::Body;
+use axum::extract::Path;
+use axum::extract::Query;
+use axum::headers::authorization::Bearer;
+use axum::headers::Authorization;
 use axum::http::header;
+use axum::http::Response;
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
+use axum::routing::get;
+use axum::routing::{any, post};
+use axum::Router;
+use axum::{Json, TypedHeader};
 use axum_extra::extract::cookie;
 use axum_server::tls_rustls::RustlsConfig;
 use axum_server::HttpConfig;
+use axum_server::{AddrIncomingConfig, Handle};
 use std::net::SocketAddr;
 use std::ops::Not;
 use std::str::FromStr;
@@ -344,7 +344,8 @@ async fn post_access_token(
 
     if let Some(auth_key) = with_context!(auth_key) {
         // check bearer token exist
-        let bearer = bearer.ok_or(ResponseError::Unauthorized(ProxyError::AuthKeyRequired))?;
+        let bearer =
+            bearer.ok_or_else(|| ResponseError::Unauthorized(ProxyError::AuthKeyRequired))?;
         if auth_key.ne(bearer.token()) {
             return Err(ResponseError::Forbidden(ProxyError::AuthKeyError));
         }
@@ -387,18 +388,34 @@ async fn post_revoke_token(
 
 /// GET /auth/arkose_token/:path
 /// Example: /auth//arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147
+#[derive(serde::Deserialize)]
+struct Blob {
+    blob: Option<String>,
+}
+
 async fn get_arkose_token(
     bearer: Option<TypedHeader<Authorization<Bearer>>>,
     pk: Path<String>,
+    blob: Option<Query<Blob>>,
 ) -> Result<Json<ArkoseToken>, ResponseError> {
+    // Require auth key
+    if let Some(auth_key) = with_context!(auth_key) {
+        // check bearer token exist
+        let bearer =
+            bearer.ok_or_else(|| ResponseError::Unauthorized(ProxyError::AuthKeyRequired))?;
+        if auth_key.ne(bearer.token()) {
+            return Err(ResponseError::Forbidden(ProxyError::AuthKeyError));
+        }
+    }
+
+    // Require arkose token endpoint public key
     let typed = arkose::Type::from_pk(pk.as_str()).map_err(ResponseError::BadRequest)?;
-    // 35536E1E-65B4-4D96-9D97-6ADB7EFF8147 need access token
-    let identifier = bearer.map(|v| v.token().to_owned());
+
     ArkoseToken::new_from_context(
         ArkoseContext::builder()
             .client(with_context!(arkose_client))
             .typed(typed)
-            .identifier(identifier)
+            .identifier(blob.map(|v| v.0.blob).flatten())
             .build(),
     )
     .await

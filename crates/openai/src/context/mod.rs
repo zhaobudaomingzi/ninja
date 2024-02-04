@@ -50,8 +50,6 @@ pub struct Context {
     arkose_context: arkose::ArkoseVersionContext<'static>,
     /// arkoselabs solver
     arkose_solver: Option<ArkoseSolver>,
-    /// HAR file upload authenticate key
-    arkose_har_upload_key: Option<String>,
     /// Enable files proxy
     enable_file_proxy: bool,
     /// Login auth key
@@ -88,11 +86,6 @@ impl Context {
     /// Get the reqwest arkose client
     pub fn arkose_client(&self) -> Client {
         self.arkose_client.next().into()
-    }
-
-    /// Get the arkoselabs har file upload authenticate key
-    pub fn arkose_har_upload_key(&self) -> Option<&str> {
-        self.arkose_har_upload_key.as_deref()
     }
 
     /// Get the arkoselabs solver

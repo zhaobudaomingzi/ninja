@@ -78,7 +78,7 @@ static TEMPLATE: OnceLock<tera::Tera> = OnceLock::new();
 // this function could be located in a different module
 pub(super) fn config(router: Router, args: &Args) -> Router {
     // If the UI is disabled, then return the router directly
-    if args.disable_ui {
+    if !args.enable_webui {
         return router;
     }
 

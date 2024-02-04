@@ -77,6 +77,7 @@ opkg install luci-i18n-ninja-zh-cn_1.1.6-1_all.ipk
 ```shell
 docker run --rm -it -p 7999:7999 --name=ninja \
   -e LOG=info \
+  -v ~/.ninja:/root/.ninja \
   ghcr.io/gngpp/ninja:latest run
 ```
 
@@ -126,9 +127,10 @@ services:
   - 先登录到 `ChatGPT` 的 `GPT4` 提问界面，按下 `F12` 键，此时会打开浏览器的控制台，找到 `network` （如果你的控制台为中文，则显示为 `网络` ）并左键点击，此时会切换到浏览器的网络抓包界面
   - 在控制台打开的情况下，发送一次 `GPT-4` 会话消息，然后在抓包界面找到 `filter` （如果你的控制台为中文，则显示为 `过滤` ），输入这个地址进行过滤 `https://tcr9i.chat.openai.com/fc/gt2/public_key/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`
   - 过滤出来的至少会有一条记录，随机选择一条，然后下载这个接口的HAR日志记录文件，具体操作是：右键点击这条记录，然后找到 `Save all as HAR with content` （如果你的控制台为中文，则显示为 `以 HAR 格式保存所有内容` ）
-  - 使用启动参数 `--arkose-gpt4-har-dir` 指定HAR目录路径使用（不指定路径则使用默认路径`~/.ninja/gpt4`，可直接上传更新HAR），同理`GPT-3.5`和其他类型也是一样方法。支持WebUI上传更新HAR，请求路径:`/har/upload`，可选上传身份验证参数:`--arkose-har-upload-key`
+  - 使用启动参数 `--arkose-har-dir` 指定HAR目录路径使用（不指定路径则使用默认路径`~/.ninja`，可直接上传更新HAR），如果你使用docker，并且不指定目录，只需要映射`~/.ninja`工作目录，支持WebUI上传更新HAR，请求路径:`/har/upload`，可选上传身份验证参数:`--auth-key`
 
-2) 使用 [Fcsrv](https://github.com/gngpp/fcsrv) / [YesCaptcha](https://yescaptcha.com/i/1Cc5i4) / [CapSolver](https://dashboard.capsolver.com/passport/register?inviteCode=y7CtB_a-3X6d)
+
+1) 使用 [Fcsrv](https://github.com/gngpp/fcsrv) / [YesCaptcha](https://yescaptcha.com/i/1Cc5i4) / [CapSolver](https://dashboard.capsolver.com/passport/register?inviteCode=y7CtB_a-3X6d)
 
 - `Fcsrv` / `YesCaptcha` / `CapSolver`推荐搭配HAR使用，出验证码则调用解析器处理
 
@@ -162,7 +164,7 @@ services:
 
 - Arkose-API
   - `/auth/arkose_token/:pk`
-  > 其中pk为arkose类型的ID，比如请求GPT4的Arkose，`/auth/arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`，若`GPT-4`开始强制blob参数，需要带上`AccessToken` -> `Authorization: Bearer xxxx`
+  > 其中pk为arkose类型的ID，比如请求GPT4的Arkose，`/auth/arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`，若`GPT-4`开始强制blob参数，需要带上`AccessToken` -> `/auth/arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147?blob=your_access_token`
 
 - Authorization
 
@@ -208,11 +210,13 @@ services:
 
 #### 参数说明
 
+> **默认工作目录`~/.ninja`**
+
 - `--level`，环境变量 `LOG`，日志级别: 默认info
 - `--bind`，环境变量 `BIND`， 服务监听地址: 默认0.0.0.0:7999，
 - `--tls-cert`，环境变量 `TLS_CERT`，TLS证书公钥，支持格式: EC/PKCS8/RSA
 - `--tls-key`，环境变量 `TLS_KEY`，TLS证书私钥
-- `--disable-webui`, 如果不想使用默认自带的WebUI，使用此参数关闭
+- `--enable-webui`, 默认关闭自带的WebUI，使用此参数开启，必须设置`--arkose-endpoint`，如果你的出口访问域名是`example.com`，那么你需要设置`--arkose-endpoint https://example.com`
 - `--enable-file-proxy`，环境变量`ENABLE_FILE_PROXY`，开启文件上下传API代理
 - `--enable-arkose-proxy`，开启获取`Arkose Token`端点
 - `--enable-direct`，开启直连，将绑定`interface`出口的IP的加入代理池
@@ -224,12 +228,13 @@ services:
 - `--cf-site-key`，Cloudflare turnstile captcha site key
 - `--cf-secret-key`，Cloudflare turnstile captcha secret key
 - `--arkose-endpoint`，ArkoseLabs endpoint，例如: <https://client-api.arkoselabs.com>
+- `--arkose-har-dir`，ArkoseLabs HAR特征文件目录路径，例如: `~/har`，不指定路径则使用默认路径`~/.ninja`
 - `--arkose-solver`，ArkoseLabs solver platform，例如: yescaptcha
 - `--arkose-solver-key`，ArkoseLabs solver client key
 - `--arkose-gpt3-experiment`，开启GPT-3.5 ArkoseLabs实验
 - `--arkose-gpt3-experiment-solver`，开启GPT-3.5 ArkoseLabs实验，需要上传HAR特征文件，并且会校验ArkoseToken正确性
 - `--impersonate-uas`，可选随机模拟UA，多个使用`,`隔开，详细请看命令手册
-- `--auth-key`，登录`API`认证`Key`，随`Authorization Bearer`格式发送
+- `--auth-key`，`登录`/`HAR Manager`/`Arkose`的`API`认证`Key`，使用`Authorization Bearer`格式发送
 
 ##### 代理高阶用法
 
@@ -315,7 +320,7 @@ Options:
           Client proxy, support multiple proxy, use ',' to separate, Format: proto|type
           Proto: all/api/auth/arkose, default: all
           Type: interface/proxy/ipv6 subnet，proxy type only support: socks5/http/https
-          Example: all|socks5://192.168.1.1:1080, api|10.0.0.1, auth|2001:db8::/32, http://192.168.1.1:1081 [env: PROXIES=]
+          e.g. all|socks5://192.168.1.1:1080, api|10.0.0.1, auth|2001:db8::/32, http://192.168.1.1:1081 [env: PROXIES=]
       --enable-direct
           Enable direct connection [env: ENABLE_DIRECT=]
   -I, --impersonate-uas <IMPERSONATE_UAS>
@@ -333,9 +338,9 @@ Options:
       --cf-secret-key <CF_SECRET_KEY>
           Cloudflare turnstile captcha secret key [env: CF_SITE_KEY=]
   -A, --auth-key <AUTH_KEY>
-          Login Authentication Key [env: AUTH_KEY=]
-  -D, --disable-webui
-          Disable WebUI [env: DISABLE_WEBUI=]
+          Login/Arkose/HAR Authentication Key [env: AUTH_KEY=]
+      --enable-webui
+          Enable WebUI [env: ENABLE_WEBUI=]
   -F, --enable-file-proxy
           Enable file endpoint proxy [env: ENABLE_FILE_PROXY=]
   -G, --enable-arkose-proxy
@@ -343,21 +348,13 @@ Options:
   -W, --visitor-email-whitelist <VISITOR_EMAIL_WHITELIST>
           Visitor email whitelist [env: VISITOR_EMAIL_WHITELIST=]
       --arkose-endpoint <ARKOSE_ENDPOINT>
-          Arkose endpoint, Example: https://client-api.arkoselabs.com
+          Arkose endpoint, e.g. https://client-api.arkoselabs.com
   -E, --arkose-gpt3-experiment
           Enable Arkose GPT-3.5 experiment
   -S, --arkose-gpt3-experiment-solver
           Enable Arkose GPT-3.5 experiment solver
-      --arkose-gpt3-har-dir <ARKOSE_GPT3_HAR_DIR>
-          About the browser HAR directory path requested by ChatGPT GPT-3.5 ArkoseLabs
-      --arkose-gpt4-har-dir <ARKOSE_GPT4_HAR_DIR>
-          About the browser HAR directory path requested by ChatGPT GPT-4 ArkoseLabs
-      --arkose-auth-har-dir <ARKOSE_AUTH_HAR_DIR>
-          About the browser HAR directory path requested by Auth ArkoseLabs
-      --arkose-platform-har-dir <ARKOSE_PLATFORM_HAR_DIR>
-          About the browser HAR directory path requested by Platform ArkoseLabs
-  -K, --arkose-har-upload-key <ARKOSE_HAR_UPLOAD_KEY>
-          HAR file upload authenticate key
+      --arkose-har-dir <ARKOSE_HAR_DIR>
+          About the browser HAR directory path requested by ArkoseLabs
   -s, --arkose-solver <ARKOSE_SOLVER>
           About ArkoseLabs solver platform [default: fcsrv]
   -k, --arkose-solver-key <ARKOSE_SOLVER_KEY>
@@ -368,6 +365,8 @@ Options:
           About the solver submit multiple image limit by ArkoseLabs [default: 1]
       --arkose-solver-tguess-endpoint <ARKOSE_SOLVER_TGUESS_ENDPOINT>
           About the solver tguess endpoint by ArkoseLabs
+      --arkose-solver-image-dir <ARKOSE_SOLVER_IMAGE_DIR>
+          About the solver image store directory by ArkoseLabs
   -T, --tb-enable
           Enable token bucket flow limitation
       --tb-strategy <TB_STRATEGY>

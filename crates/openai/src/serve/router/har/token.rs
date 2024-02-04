@@ -20,7 +20,7 @@ async fn get_or_init_secret() -> &'static String {
             let path = home_dir()
                 .unwrap_or_else(|| PathBuf::from("."))
                 .join(".token_secret");
-            let key = if let Some(upload_key) = with_context!(arkose_har_upload_key) {
+            let key = if let Some(upload_key) = with_context!(auth_key) {
                 upload_key.to_owned()
             } else {
                 generate_random_string(31)

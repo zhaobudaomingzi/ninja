@@ -28,7 +28,7 @@ pub struct Args {
     #[builder(setter(into), default = 75)]
     pub(crate) tcp_keepalive: usize,
 
-    /// Disable Http Server/Client Keepalive
+    /// Disable Http Client Keepalive
     #[builder(default = false)]
     pub(crate) no_keepalive: bool,
 
@@ -72,9 +72,9 @@ pub struct Args {
     #[builder(setter(into), default)]
     pub(super) auth_key: Option<String>,
 
-    /// Disable web ui
+    /// Enable webui
     #[builder(setter(into), default = false)]
-    pub(crate) disable_ui: bool,
+    pub(crate) enable_webui: bool,
 
     /// Enable file proxy
     #[builder(setter(into), default = false)]
@@ -96,21 +96,9 @@ pub struct Args {
     #[builder(setter(into), default)]
     pub(crate) arkose_endpoint: Option<String>,
 
-    /// ChatGPT GPT-3.5 Arkoselabs HAR record file path
-    #[builder(setter(into), default)]
-    pub(crate) arkose_gpt3_har_dir: Option<PathBuf>,
-
-    /// ChatGPT GPT-4 Arkoselabs HAR record file path
-    #[builder(setter(into), default)]
-    pub(crate) arkose_gpt4_har_dir: Option<PathBuf>,
-
     /// Auth Arkoselabs HAR record file path
     #[builder(setter(into), default)]
-    pub(crate) arkose_auth_har_dir: Option<PathBuf>,
-
-    /// Platform Arkoselabs HAR record file path
-    #[builder(setter(into), default)]
-    pub(crate) arkose_platform_har_dir: Option<PathBuf>,
+    pub(crate) arkose_har_dir: Option<PathBuf>,
 
     /// Enable Arkose GPT-3.5 experiment
     #[builder(setter(into), default = false)]
@@ -119,10 +107,6 @@ pub struct Args {
     /// Enable Arkose GPT-3.5 experiment solver
     #[builder(setter(into), default = false)]
     pub(crate) arkose_gpt3_experiment_solver: bool,
-
-    /// HAR file upload authenticate key
-    #[builder(setter(into), default)]
-    pub(crate) arkose_har_upload_key: Option<String>,
 
     /// arkoselabs solver
     #[builder(setter(into), default)]

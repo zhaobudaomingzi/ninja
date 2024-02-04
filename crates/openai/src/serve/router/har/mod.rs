@@ -54,7 +54,7 @@ fn success_html(title: &str, success_message: &str) -> Html<String> {
 
 /// Check session
 async fn check_session(jar: CookieJar) -> bool {
-    if with_context!(arkose_har_upload_key).is_none() {
+    if with_context!(auth_key).is_none() {
         return true;
     }
     if let Some(cookie) = jar.get(COOKIE_NAME) {
@@ -99,7 +99,7 @@ struct AuthenticateKey {
 async fn post_login(
     password: Option<Form<AuthenticateKey>>,
 ) -> Result<impl IntoResponse, ResponseError> {
-    if let Some(upload_key) = with_context!(arkose_har_upload_key) {
+    if let Some(upload_key) = with_context!(auth_key) {
         if password.as_ref().map(|p| p.0.password.as_ref()) == Some(upload_key) {
             return Ok(generate_success_response().await.into_response());
         }

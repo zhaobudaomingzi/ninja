@@ -113,7 +113,7 @@ pub struct ServeArgs {
     /// Client proxy, support multiple proxy, use ',' to separate, Format: proto|type
     /// Proto: all/api/auth/arkose, default: all
     /// Type: interface/proxy/ipv6 subnet，proxy type only support: socks5/http/https
-    /// Example: all|socks5://192.168.1.1:1080, api|10.0.0.1, auth|2001:db8::/32, http://192.168.1.1:1081
+    /// e.g. all|socks5://192.168.1.1:1080, api|10.0.0.1, auth|2001:db8::/32, http://192.168.1.1:1081
     #[clap(short = 'x',long, env = "PROXIES", value_parser = parse::parse_proxies_url, verbatim_doc_comment)]
     pub(super) proxies: Option<std::vec::Vec<proxy::Proxy>>,
 
@@ -149,13 +149,13 @@ pub struct ServeArgs {
     #[clap(long, env = "CF_SITE_KEY", requires = "cf_site_key")]
     pub(super) cf_secret_key: Option<String>,
 
-    /// Login Authentication Key
+    /// Login/Arkose/HAR Authentication Key
     #[clap(short = 'A', long, env = "AUTH_KEY")]
     pub(super) auth_key: Option<String>,
 
-    /// Disable WebUI
-    #[clap(short = 'D', long, env = "DISABLE_WEBUI")]
-    pub(super) disable_webui: bool,
+    /// Enable WebUI
+    #[clap(long, env = "ENABLE_WEBUI", requires = "arkose_endpoint")]
+    pub(super) enable_webui: bool,
 
     /// Enable file endpoint proxy
     #[clap(short = 'F', long, env = "ENABLE_FILE_PROXY")]
@@ -169,8 +169,8 @@ pub struct ServeArgs {
     #[clap(short = 'W', long, env = "VISITOR_EMAIL_WHITELIST", value_parser = parse::parse_email_whitelist)]
     pub(super) visitor_email_whitelist: Option<std::vec::Vec<String>>,
 
-    /// Arkose endpoint, Example: https://client-api.arkoselabs.com
-    #[clap(long, value_parser = parse::parse_url)]
+    /// Arkose endpoint, e.g. https://client-api.arkoselabs.com
+    #[clap(long, value_parser = parse::parse_url, requires = "enable_webui")]
     pub(super) arkose_endpoint: Option<String>,
 
     /// Enable Arkose GPT-3.5 experiment
@@ -181,25 +181,9 @@ pub struct ServeArgs {
     #[clap(short = 'S', long, default_value = "false")]
     pub(super) arkose_gpt3_experiment_solver: bool,
 
-    /// About the browser HAR directory path requested by ChatGPT GPT-3.5 ArkoseLabs
+    /// About the browser HAR directory path requested by ArkoseLabs
     #[clap(long, value_parser = parse::parse_dir_path)]
-    pub(super) arkose_gpt3_har_dir: Option<PathBuf>,
-
-    /// About the browser HAR directory path requested by ChatGPT GPT-4 ArkoseLabs
-    #[clap(long, value_parser = parse::parse_dir_path)]
-    pub(super) arkose_gpt4_har_dir: Option<PathBuf>,
-
-    ///  About the browser HAR directory path requested by Auth ArkoseLabs
-    #[clap(long, value_parser = parse::parse_dir_path)]
-    pub(super) arkose_auth_har_dir: Option<PathBuf>,
-
-    /// About the browser HAR directory path requested by Platform ArkoseLabs
-    #[clap(long, value_parser = parse::parse_dir_path)]
-    pub(super) arkose_platform_har_dir: Option<PathBuf>,
-
-    /// HAR file upload authenticate key
-    #[clap(short = 'K', long)]
-    pub(super) arkose_har_upload_key: Option<String>,
+    pub(super) arkose_har_dir: Option<PathBuf>,
 
     /// About ArkoseLabs solver platform
     #[clap(
