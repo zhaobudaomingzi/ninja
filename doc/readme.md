@@ -78,6 +78,7 @@ opkg install luci-i18n-ninja-zh-cn_1.1.6-1_all.ipk
 ```shell
 docker run --rm -it -p 7999:7999 --name=ninja \
   -e LOG=info \
+  -v ~/.ninja:/root/.ninja \
   ghcr.io/gngpp/ninja:latest run
 ```
 
@@ -127,7 +128,7 @@ Sending `GPT-4/GPT-3.5/Creating API-Key` dialog requires sending `Arkose Token` 
   - First, log in to the `ChatGPT` GPT4 question interface, press the `F12` key, and the browser console will open. Find `network` and click with the left mouse button (If your console is in Chinese, it will be displayed as `网络`), and the browser's network capture interface will switch to.
   - With the console open, send a `GPT-4` session message, then find `filter` in the capture interface (If your console is in Chinese, it will be displayed as `过滤`), enter this address for filtering: `https://tcr9i.chat.openai.com/fc/gt2/public_key/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`
   - At least one record will be filtered out. Randomly select one and download the HAR log record file of this interface. The specific operation is: right-click on this record, then find `Save all as HAR with content` (If your console is in Chinese, it will be displayed as `以 HAR 格式保存所有内容`).
-  - Use the startup parameter `--arkose-gpt4-har-dir` to specify the HAR directory path (if no path is specified, the default path `~/.ninja/gpt4` will be used), and directly upload and update the HAR. The same method applies to `GPT-3.5` and other types. Support WebUI for uploading and updating HAR, request path: `/har/upload`, optional authentication parameter: `--arkose-har-upload-key`.
+  - Use the startup parameter `--arkose-har-dir` to specify the HAR directory path (if you do not specify a path, use the default path `~/.ninja`, and you can directly upload and update HAR). If you use docker and do not specify a directory, only Need to map the `~/.ninja` working directory, support WebUI upload and update HAR, request path: `/har/upload`, optional upload authentication parameter: `--auth-key`.
 
 2) Use [Fcsrv](https://github.com/gngpp/fcsrv) / [YesCaptcha](https://yescaptcha.com/i/1Cc5i4) / [CapSolver](https://dashboard.capsolver.com/passport/register?inviteCode=y7CtB_a-3X6d)
 
@@ -164,7 +165,7 @@ Currently OpenAI has updated `Login` which requires verification of `Arkose Toke
 
 - Arkose-API
   - `/auth/arkose_token/:pk`
-  > where pk is the arkose type ID, such as requesting Arkose for GPT4, `/auth/arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`. If `GPT-4` starts to force blob parameters, you need to bring `AccessToken` - > `Authorization: Bearer xxxx`
+  > where pk is the arkose type ID, such as requesting Arkose for GPT4, `/auth/arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147`. If `GPT-4` starts to force blob parameters, you need to bring `AccessToken` -> `/auth/arkose_token/35536E1E-65B4-4D96-9D97-6ADB7EFF8147?blob=your_access_token`
 
 - Authorization
   > Except for login, use `Authorization: Bearer xxxx`, [Python Example](https://github.com/gngpp/ninja/blob/main/doc/authorization.md)
@@ -209,11 +210,13 @@ Currently OpenAI has updated `Login` which requires verification of `Arkose Toke
 
 #### Parameter Description
 
+> **Default working directory `~/.ninja`**
+
 - `--level`, environment variable `LOG`, log level: default info
 - `--bind`, environment variable `BIND`, service listening address: default 0.0.0.0:7999,
 - `--tls-cert`, environment variable `TLS_CERT`', TLS certificate public key. Supported format: EC/PKCS8/RSA
 - `--tls-key`, environment variable `TLS_KEY`, TLS certificate private key
-- `--disable-webui`, if you don’t want to use the default built-in WebUI, use this parameter to turn it off
+- `--enable-webui`, the built-in WebUI is turned off by default. Use this parameter to enable it. You must set `--arkose-endpoint`. If your exit access domain name is `example.com`, then you need to set `--arkose-endpoint https://example.com`
 - `--enable-file-proxy`, environment variable `ENABLE_FILE_PROXY`, turns on the file upload and download API proxy
 - `--enable-arkose-proxy`, enable obtaining `Arkose Token` endpoint
 - `--enable-direct`, enable direct connection, add the IP bound to the `interface` export to the proxy pool
@@ -225,12 +228,13 @@ Currently OpenAI has updated `Login` which requires verification of `Arkose Toke
 - `--cf-site-key`, Cloudflare turnstile captcha site key
 - `--cf-secret-key`, Cloudflare turnstile captcha secret key
 - `--arkose-endpoint`, ArkoseLabs endpoint, for example: <https://client-api.arkoselabs.com>
+- `--arkose-har-dir`, ArkoseLabs HAR feature file directory path, for example: `~/har`, if the path is not specified, the default path `~/.ninja` will be used
 - `--arkose-solver`, ArkoseLabs solver platform, for example: yescaptcha
 - `--arkose-solver-key`, ArkoseLabs solver client key
 - `--arkose-gpt3-experiment`, to enable GPT-3.5 ArkoseLabs experiment
 - `--arkose-gpt3-experiment-solver`, to open the GPT-3.5 ArkoseLabs experiment, you need to upload the HAR feature file, and the correctness of the ArkoseToken will be verified
 - `--impersonate-uas`, you can optionally simulate UA randomly. Use `,` to separate multiple ones. Please see the command manual for details.
-- `--auth-key`, login `API` authentication `Key`, sent with `Authorization Bearer` format
+- `--auth-key`, `API` authentication `Key` of `Login`/`HAR Manager`/`Arkose`, sent using `Authorization Bearer` format
 
 ##### Advanced proxy usage
 
@@ -316,7 +320,7 @@ Options:
           Client proxy, support multiple proxy, use ',' to separate, Format: proto|type
           Proto: all/api/auth/arkose, default: all
           Type: interface/proxy/ipv6 subnet，proxy type only support: socks5/http/https
-          Example: all|socks5://192.168.1.1:1080, api|10.0.0.1, auth|2001:db8::/32, http://192.168.1.1:1081 [env: PROXIES=]
+          e.g. all|socks5://192.168.1.1:1080, api|10.0.0.1, auth|2001:db8::/32, http://192.168.1.1:1081 [env: PROXIES=]
       --enable-direct
           Enable direct connection [env: ENABLE_DIRECT=]
   -I, --impersonate-uas <IMPERSONATE_UAS>
@@ -334,9 +338,9 @@ Options:
       --cf-secret-key <CF_SECRET_KEY>
           Cloudflare turnstile captcha secret key [env: CF_SITE_KEY=]
   -A, --auth-key <AUTH_KEY>
-          Login Authentication Key [env: AUTH_KEY=]
-  -D, --disable-webui
-          Disable WebUI [env: DISABLE_WEBUI=]
+          Login/Arkose/HAR Authentication Key [env: AUTH_KEY=]
+      --enable-webui
+          Enable WebUI [env: ENABLE_WEBUI=]
   -F, --enable-file-proxy
           Enable file endpoint proxy [env: ENABLE_FILE_PROXY=]
   -G, --enable-arkose-proxy
@@ -344,21 +348,13 @@ Options:
   -W, --visitor-email-whitelist <VISITOR_EMAIL_WHITELIST>
           Visitor email whitelist [env: VISITOR_EMAIL_WHITELIST=]
       --arkose-endpoint <ARKOSE_ENDPOINT>
-          Arkose endpoint, Example: https://client-api.arkoselabs.com
+          Arkose endpoint, e.g. https://client-api.arkoselabs.com
   -E, --arkose-gpt3-experiment
           Enable Arkose GPT-3.5 experiment
   -S, --arkose-gpt3-experiment-solver
           Enable Arkose GPT-3.5 experiment solver
-      --arkose-gpt3-har-dir <ARKOSE_GPT3_HAR_DIR>
-          About the browser HAR directory path requested by ChatGPT GPT-3.5 ArkoseLabs
-      --arkose-gpt4-har-dir <ARKOSE_GPT4_HAR_DIR>
-          About the browser HAR directory path requested by ChatGPT GPT-4 ArkoseLabs
-      --arkose-auth-har-dir <ARKOSE_AUTH_HAR_DIR>
-          About the browser HAR directory path requested by Auth ArkoseLabs
-      --arkose-platform-har-dir <ARKOSE_PLATFORM_HAR_DIR>
-          About the browser HAR directory path requested by Platform ArkoseLabs
-  -K, --arkose-har-upload-key <ARKOSE_HAR_UPLOAD_KEY>
-          HAR file upload authenticate key
+      --arkose-har-dir <ARKOSE_HAR_DIR>
+          About the browser HAR directory path requested by ArkoseLabs
   -s, --arkose-solver <ARKOSE_SOLVER>
           About ArkoseLabs solver platform [default: fcsrv]
   -k, --arkose-solver-key <ARKOSE_SOLVER_KEY>
@@ -369,6 +365,8 @@ Options:
           About the solver submit multiple image limit by ArkoseLabs [default: 1]
       --arkose-solver-tguess-endpoint <ARKOSE_SOLVER_TGUESS_ENDPOINT>
           About the solver tguess endpoint by ArkoseLabs
+      --arkose-solver-image-dir <ARKOSE_SOLVER_IMAGE_DIR>
+          About the solver image store directory by ArkoseLabs
   -T, --tb-enable
           Enable token bucket flow limitation
       --tb-strategy <TB_STRATEGY>

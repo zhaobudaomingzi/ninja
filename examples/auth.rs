@@ -46,8 +46,10 @@ async fn main() -> anyhow::Result<()> {
     if let Some(refresh_token) = auth_token.refresh_token() {
         println!("RefreshToken: {}", refresh_token);
         let refresh_token = auth.do_refresh_token(refresh_token).await?;
-        println!("RefreshToken: {}", refresh_token.refresh_token);
-        auth.do_revoke_token(&refresh_token.refresh_token).await?;
+        if let Some(refresh_token) = refresh_token.refresh_token {
+            println!("RefreshToken: {}", refresh_token);
+            auth.do_revoke_token(&refresh_token).await?;
+        }
     }
 
     Ok(())
