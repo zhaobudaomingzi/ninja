@@ -69,7 +69,10 @@ fn print_boot_message(inner: &Args) {
     info!("Enable direct connection: {}", inner.enable_direct);
     info!("Enable WebUI: {}", inner.enable_webui);
     info!("Enable File endpoint: {}", inner.enable_file_proxy);
-    info!("Enable Arkose token endpoint: {}", inner.enable_arkose_proxy);
+    info!(
+        "Enable Arkose token endpoint: {}",
+        inner.enable_arkose_proxy
+    );
     info!(
         "ArkoseLabs GPT-3.5 experiment: {}",
         inner.arkose_gpt3_experiment
