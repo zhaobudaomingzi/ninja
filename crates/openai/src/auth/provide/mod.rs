@@ -107,11 +107,7 @@ impl<'a> RequestContext<'a> {
 
     async fn load_arkose_token(&mut self) -> AuthResult<()> {
         let arkose_token = match self.account.arkose_token.as_deref() {
-            Some(arkose_token) => {
-                let arkose_token = ArkoseToken::from(arkose_token);
-                let _ = arkose_token.callback().await;
-                arkose_token
-            }
+            Some(arkose_token) => ArkoseToken::from(arkose_token),
             None => arkose::ArkoseToken::new_from_context(
                 ArkoseContext::builder()
                     .client(with_context!(arkose_client))
