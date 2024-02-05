@@ -57,20 +57,6 @@ ninja gt -o serve.toml
 ninja (run/start/restart) -C serve.toml
 ```
 
-- #### OpenWrt
-
-There are pre-compiled ipk files in GitHub [Releases](https://github.com/gngpp/ninja/releases/latest), which currently provide versions of aarch64/x86_64 and other architectures. After downloading, use opkg to install, and use nanopi r4s as example:
-
-```shell
-wget https://github.com/gngpp/ninja/releases/download/v0.9.20/ninja_0.9.20_aarch64_generic.ipk
-wget https://github.com/gngpp/ninja/releases/download/v0.9.20/luci-app-ninja_1.1.6-1_all.ipk
-wget https://github.com/gngpp/ninja/releases/download/v0.9.20/luci-i18n-ninja-zh-cn_1.1.6-1_all.ipk
-
-opkg install ninja_0.9.20_aarch64_generic.ipk
-opkg install luci-app-ninja_1.1.6-1_all.ipk
-opkg install luci-i18n-ninja-zh-cn_1.1.6-1_all.ipk
-```
-
 - #### Docker
 
 > Mirror source supports `gngpp/ninja:latest`/`ghcr.io/gngpp/ninja:latest`
@@ -140,6 +126,8 @@ The platform performs verification code parsing, and the startup parameter `--ar
 Currently OpenAI has updated `Login` which requires verification of `Arkose Token`. The solution is the same as `GPT-4`. Fill in the startup parameters and specify the HAR file `--arkose-auth-har-dir`. To create an API-Key, you need to upload the HAR feature file related to the Platform. The acquisition method is the same as above.
 
 `OpenAI` cancels `Arkose` verification for `GPT-3.5` and can be used without uploading HAR feature files (uploaded ones will not be affected). After compatibility, `Arkose` verification may be turned on again, and startup parameters need to be added`-- arkose-gpt3-experiment` enables the `GPT-3.5` model `Arkose` verification process, and the WebUI is not affected. If you encounter `418 I'm a teapot`, you can enable `--arkose-gpt3-experiment`, and you need to upload `HAR` features. If there are no `GPT-3.5` features, `GPT-4` features are also required. It can be used. If it still doesn't work, try to enable `--arkose-gpt3-experiment-solver`, which may use a third-party platform to solve the verification code.
+
+> The above are the prerequisites for using `API`. There is no need to consider using `WebUI`.
 
 ### Http Server
 
