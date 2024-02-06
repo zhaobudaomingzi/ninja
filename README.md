@@ -16,7 +16,7 @@
 
 # ninja
 
-Reverse engineered `ChatGPT` proxy (bypass Cloudflare 403 Access Denied)
+Reverse engineered `ChatGPT` proxy
 
 > Since `ArkoseLabs` is constantly updated and fixed, the project will be released with closed source patches. If you are worried about security issues, please do not use it.
 
