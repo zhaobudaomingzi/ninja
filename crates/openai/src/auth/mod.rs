@@ -287,11 +287,11 @@ impl AuthProvider for AuthClient {
         }
 
         // Try supported providers
-        // for provider in self.providers.iter() {
-        //     if provider.supports(&account.option) {
-        //         return provider.do_access_token(account).await;
-        //     }
-        // }
+        for provider in self.providers.iter() {
+            if provider.supports(&account.option) {
+                return provider.do_access_token(account).await;
+            }
+        }
 
         Err(AuthError::NotSupportedImplementation)
     }
