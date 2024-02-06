@@ -48,7 +48,7 @@ static EMAIL_REGEX: OnceCell<Regex> = OnceCell::const_new();
 /// [`Rc`]: std::rc::Rc
 #[derive(Clone)]
 pub struct AuthClient {
-    inner: Arc<Client>,
+    inner: Client,
     providers: Vec<AuthProviderContext>,
 }
 
@@ -481,27 +481,23 @@ impl AuthClientBuilder {
 
         let mut providers = Vec::with_capacity(3);
 
-        let arc_client = Arc::new(client);
-
         // Web Login privider
-        providers.push(AuthProviderContext::Web(WebAuthProvider(
-            arc_client.clone(),
-        )));
+        providers.push(AuthProviderContext::Web(WebAuthProvider(client.clone())));
 
         // Apple Login privider
         #[cfg(feature = "preauth")]
         providers.push(AuthProviderContext::Apple(AppleAuthProvider {
-            inner: arc_client.clone(),
+            inner: client.clone(),
             preauth_provider: PreAuthProvider,
         }));
 
         // Platform Login privider
         providers.push(AuthProviderContext::Platform(PlatformAuthProvider(
-            arc_client.clone(),
+            client.clone(),
         )));
 
         AuthClient {
-            inner: arc_client,
+            inner: client,
             providers,
         }
     }

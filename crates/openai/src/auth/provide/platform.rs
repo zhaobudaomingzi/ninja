@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::auth::error::AuthError;
 use crate::auth::provide::{AuthenticateData, GrantType};
 use crate::auth::AuthClient;
@@ -21,7 +19,7 @@ const PLATFORM_CLIENT_ID: &str = "DRivsnm2Mu42T3KOpqdtwB3NYviHYzwD";
 const OPENAI_OAUTH_PLATFORM_CALLBACK_URL: &str = "https://platform.openai.com/auth/callback";
 
 #[derive(Clone)]
-pub(crate) struct PlatformAuthProvider(pub Arc<Client>);
+pub(crate) struct PlatformAuthProvider(pub Client);
 
 impl PlatformAuthProvider {
     async fn authorize(&self, ctx: &mut RequestContext<'_>) -> AuthResult<()> {

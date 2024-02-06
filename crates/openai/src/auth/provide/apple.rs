@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::auth::error::AuthError;
 use crate::auth::provide::{AuthenticateData, GrantType};
 use crate::auth::AuthClient;
@@ -35,7 +33,7 @@ impl PreAuthProvider {
 
 #[derive(Clone)]
 pub(crate) struct AppleAuthProvider {
-    pub inner: Arc<Client>,
+    pub inner: Client,
     pub preauth_provider: PreAuthProvider,
 }
 

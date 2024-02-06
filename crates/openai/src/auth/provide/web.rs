@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use super::{
     AuthProvider, AuthResult, AuthenticateMfaData, GetAuthorizedUrlData, IdentifierData,
     RequestContext, RequestContextExt,
@@ -16,7 +14,7 @@ use serde_json::Value;
 use url::Url;
 
 #[derive(Clone)]
-pub(crate) struct WebAuthProvider(pub Arc<Client>);
+pub(crate) struct WebAuthProvider(pub Client);
 
 impl WebAuthProvider {
     async fn csrf_token(&self, ctx: &mut RequestContext<'_>) -> AuthResult<()> {
