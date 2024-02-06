@@ -20,8 +20,8 @@ use typed_builder::TypedBuilder;
 
 pub type AuthResult<T, E = AuthError> = anyhow::Result<T, E>;
 
-#[async_trait::async_trait]
-pub trait AuthProvider: Send + Sync {
+#[allow(async_fn_in_trait)]
+pub trait AuthProvider {
     async fn do_access_token(&self, account: &model::AuthAccount)
         -> AuthResult<model::AccessToken>;
 
