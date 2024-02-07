@@ -8,7 +8,7 @@ use crate::homedir::home_dir;
 use crate::{context, debug, error, now_duration};
 
 pub trait TokenBucket: Send + Sync {
-    async fn acquire(&self, ip: IpAddr) -> anyhow::Result<bool>;
+    fn acquire(&self, ip: IpAddr) -> anyhow::Result<bool>;
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -68,7 +68,7 @@ impl MemTokenBucket {
 }
 
 impl TokenBucket for MemTokenBucket {
-    async fn acquire(&self, ip: IpAddr) -> anyhow::Result<bool> {
+    fn acquire(&self, ip: IpAddr) -> anyhow::Result<bool> {
         if !self.enable {
             return Ok(true);
         }
@@ -211,7 +211,7 @@ fn clear_expired_buckets_every(db: Arc<Database<'static>>, expired: u32) {
 }
 
 impl TokenBucket for RedisTokenBucket<'_> {
-    async fn acquire(&self, ip: IpAddr) -> anyhow::Result<bool> {
+    fn acquire(&self, ip: IpAddr) -> anyhow::Result<bool> {
         if !self.enable {
             return Ok(true);
         }
@@ -291,10 +291,10 @@ impl From<(Strategy, bool, u32, u32, u32)> for TokenBucketProvider {
 }
 
 impl TokenBucket for TokenBucketProvider {
-    async fn acquire(&self, ip: IpAddr) -> anyhow::Result<bool> {
+    fn acquire(&self, ip: IpAddr) -> anyhow::Result<bool> {
         let condition = match self {
-            Self::Mem(t) => t.acquire(ip).await,
-            Self::ReDB(t) => t.acquire(ip).await,
+            Self::Mem(t) => t.acquire(ip),
+            Self::ReDB(t) => t.acquire(ip),
         };
         Ok(condition?)
     }

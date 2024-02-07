@@ -492,9 +492,7 @@ impl AuthClientBuilder {
         }));
 
         // Platform Login privider
-        providers.push(Prividers::Platform(PlatformAuthProvider(
-            client.clone(),
-        )));
+        providers.push(Prividers::Platform(PlatformAuthProvider(client.clone())));
 
         AuthClient {
             inner: client,
@@ -542,9 +540,7 @@ impl AuthProvider for Prividers {
             Prividers::Web(provider) => provider.do_revoke_token(refresh_token).await,
             #[cfg(feature = "preauth")]
             Prividers::Apple(provider) => provider.do_revoke_token(refresh_token).await,
-            Prividers::Platform(provider) => {
-                provider.do_revoke_token(refresh_token).await
-            }
+            Prividers::Platform(provider) => provider.do_revoke_token(refresh_token).await,
         }
     }
 
@@ -553,9 +549,7 @@ impl AuthProvider for Prividers {
             Prividers::Web(provider) => provider.do_refresh_token(refresh_token).await,
             #[cfg(feature = "preauth")]
             Prividers::Apple(provider) => provider.do_refresh_token(refresh_token).await,
-            Prividers::Platform(provider) => {
-                provider.do_refresh_token(refresh_token).await
-            }
+            Prividers::Platform(provider) => provider.do_refresh_token(refresh_token).await,
         }
     }
 }

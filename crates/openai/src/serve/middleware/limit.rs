@@ -15,7 +15,7 @@ pub(crate) async fn limit_middleware<B>(
     next: Next<B>,
 ) -> Result<Response, ResponseError> {
     let addr = socket_addr.ip();
-    match limit.acquire(addr).await {
+    match limit.acquire(addr) {
         Ok(condition) => match condition {
             true => Ok(next.run(request).await),
             false => Err(ResponseError::TooManyRequests(ProxyError::TooManyRequests)),
