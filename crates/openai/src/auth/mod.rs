@@ -49,7 +49,7 @@ static EMAIL_REGEX: OnceCell<Regex> = OnceCell::const_new();
 #[derive(Clone)]
 pub struct AuthClient {
     inner: Client,
-    providers: Vec<AuthProviderContext>,
+    providers: Vec<Prividers>,
 }
 
 impl AuthClient {
@@ -267,8 +267,8 @@ impl AuthClient {
 }
 
 impl AuthProvider for AuthClient {
-    fn supports(&self, t: &AuthStrategy) -> bool {
-        self.providers.iter().any(|strategy| strategy.supports(t))
+    fn support(&self, t: &AuthStrategy) -> bool {
+        self.providers.iter().any(|strategy| strategy.support(t))
     }
 
     async fn do_access_token(
@@ -288,7 +288,7 @@ impl AuthProvider for AuthClient {
 
         // Try supported providers
         for provider in self.providers.iter() {
-            if provider.supports(&account.option) {
+            if provider.support(&account.option) {
                 return provider.do_access_token(account).await;
             }
         }
@@ -299,7 +299,7 @@ impl AuthProvider for AuthClient {
     async fn do_revoke_token(&self, refresh_token: &str) -> AuthResult<()> {
         let mut result: Option<AuthResult<()>> = None;
         for handle in self.providers.iter() {
-            if handle.supports(&AuthStrategy::Apple) || handle.supports(&AuthStrategy::Platform) {
+            if handle.support(&AuthStrategy::Apple) || handle.support(&AuthStrategy::Platform) {
                 let res = handle.do_revoke_token(refresh_token).await;
                 match res {
                     Ok(ok) => {
@@ -320,7 +320,7 @@ impl AuthProvider for AuthClient {
         let mut result: Option<AuthResult<model::RefreshToken>> = None;
 
         for handle in self.providers.iter() {
-            if handle.supports(&AuthStrategy::Apple) || handle.supports(&AuthStrategy::Platform) {
+            if handle.support(&AuthStrategy::Apple) || handle.support(&AuthStrategy::Platform) {
                 let res = handle.do_refresh_token(refresh_token).await;
                 match res {
                     Ok(ok) => {
@@ -482,17 +482,17 @@ impl AuthClientBuilder {
         let mut providers = Vec::with_capacity(3);
 
         // Web Login privider
-        providers.push(AuthProviderContext::Web(WebAuthProvider(client.clone())));
+        providers.push(Prividers::Web(WebAuthProvider(client.clone())));
 
         // Apple Login privider
         #[cfg(feature = "preauth")]
-        providers.push(AuthProviderContext::Apple(AppleAuthProvider {
+        providers.push(Prividers::Apple(AppleAuthProvider {
             inner: client.clone(),
             preauth_provider: PreAuthProvider,
         }));
 
         // Platform Login privider
-        providers.push(AuthProviderContext::Platform(PlatformAuthProvider(
+        providers.push(Prividers::Platform(PlatformAuthProvider(
             client.clone(),
         )));
 
@@ -508,20 +508,20 @@ impl AuthClientBuilder {
 }
 
 #[derive(Clone)]
-pub(crate) enum AuthProviderContext {
+pub(crate) enum Prividers {
     Web(WebAuthProvider),
     #[cfg(feature = "preauth")]
     Apple(AppleAuthProvider),
     Platform(PlatformAuthProvider),
 }
 
-impl AuthProvider for AuthProviderContext {
-    fn supports(&self, t: &AuthStrategy) -> bool {
+impl AuthProvider for Prividers {
+    fn support(&self, t: &AuthStrategy) -> bool {
         match self {
-            AuthProviderContext::Web(provider) => provider.supports(t),
+            Prividers::Web(provider) => provider.support(t),
             #[cfg(feature = "preauth")]
-            AuthProviderContext::Apple(provider) => provider.supports(t),
-            AuthProviderContext::Platform(provider) => provider.supports(t),
+            Prividers::Apple(provider) => provider.support(t),
+            Prividers::Platform(provider) => provider.support(t),
         }
     }
 
@@ -530,19 +530,19 @@ impl AuthProvider for AuthProviderContext {
         account: &model::AuthAccount,
     ) -> AuthResult<model::AccessToken> {
         match self {
-            AuthProviderContext::Web(provider) => provider.do_access_token(account).await,
+            Prividers::Web(provider) => provider.do_access_token(account).await,
             #[cfg(feature = "preauth")]
-            AuthProviderContext::Apple(provider) => provider.do_access_token(account).await,
-            AuthProviderContext::Platform(provider) => provider.do_access_token(account).await,
+            Prividers::Apple(provider) => provider.do_access_token(account).await,
+            Prividers::Platform(provider) => provider.do_access_token(account).await,
         }
     }
 
     async fn do_revoke_token(&self, refresh_token: &str) -> AuthResult<()> {
         match self {
-            AuthProviderContext::Web(provider) => provider.do_revoke_token(refresh_token).await,
+            Prividers::Web(provider) => provider.do_revoke_token(refresh_token).await,
             #[cfg(feature = "preauth")]
-            AuthProviderContext::Apple(provider) => provider.do_revoke_token(refresh_token).await,
-            AuthProviderContext::Platform(provider) => {
+            Prividers::Apple(provider) => provider.do_revoke_token(refresh_token).await,
+            Prividers::Platform(provider) => {
                 provider.do_revoke_token(refresh_token).await
             }
         }
@@ -550,10 +550,10 @@ impl AuthProvider for AuthProviderContext {
 
     async fn do_refresh_token(&self, refresh_token: &str) -> AuthResult<model::RefreshToken> {
         match self {
-            AuthProviderContext::Web(provider) => provider.do_refresh_token(refresh_token).await,
+            Prividers::Web(provider) => provider.do_refresh_token(refresh_token).await,
             #[cfg(feature = "preauth")]
-            AuthProviderContext::Apple(provider) => provider.do_refresh_token(refresh_token).await,
-            AuthProviderContext::Platform(provider) => {
+            Prividers::Apple(provider) => provider.do_refresh_token(refresh_token).await,
+            Prividers::Platform(provider) => {
                 provider.do_refresh_token(refresh_token).await
             }
         }

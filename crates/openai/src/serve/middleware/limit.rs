@@ -6,10 +6,10 @@ use axum::{
     response::Response,
 };
 
-use super::tokenbucket::{TokenBucket, TokenBucketLimitContext};
+use super::tokenbucket::{TokenBucket, TokenBucketProvider};
 
 pub(crate) async fn limit_middleware<B>(
-    State(limit): State<std::sync::Arc<TokenBucketLimitContext>>,
+    State(limit): State<std::sync::Arc<TokenBucketProvider>>,
     ConnectInfo(socket_addr): ConnectInfo<std::net::SocketAddr>,
     request: Request<B>,
     next: Next<B>,

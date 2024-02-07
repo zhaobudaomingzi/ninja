@@ -275,12 +275,12 @@ fn ip_to_number(ip: IpAddr) -> u128 {
     }
 }
 
-pub enum TokenBucketLimitContext {
+pub enum TokenBucketProvider {
     Mem(MemTokenBucket),
     ReDB(RedisTokenBucket<'static>),
 }
 
-impl From<(Strategy, bool, u32, u32, u32)> for TokenBucketLimitContext {
+impl From<(Strategy, bool, u32, u32, u32)> for TokenBucketProvider {
     fn from(value: (Strategy, bool, u32, u32, u32)) -> Self {
         let strategy = match value.0 {
             Strategy::Mem => Self::Mem(MemTokenBucket::new(value.1, value.2, value.3, value.4)),
@@ -290,7 +290,7 @@ impl From<(Strategy, bool, u32, u32, u32)> for TokenBucketLimitContext {
     }
 }
 
-impl TokenBucket for TokenBucketLimitContext {
+impl TokenBucket for TokenBucketProvider {
     async fn acquire(&self, ip: IpAddr) -> anyhow::Result<bool> {
         let condition = match self {
             Self::Mem(t) => t.acquire(ip).await,

@@ -294,7 +294,7 @@ impl AppleAuthProvider {
 }
 
 impl AuthProvider for AppleAuthProvider {
-    fn supports(&self, t: &AuthStrategy) -> bool {
+    fn support(&self, t: &AuthStrategy) -> bool {
         t.eq(&AuthStrategy::Apple)
     }
 
