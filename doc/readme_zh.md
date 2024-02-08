@@ -24,8 +24,8 @@
   GitHub [Releases](https://github.com/gngpp/ninja/releases/latest) 中有预编译的 deb包，二进制文件，以Ubuntu为例：
 
 ```shell
-wget https://github.com/gngpp/ninja/releases/download/v0.9.27/ninja-0.9.27-x86_64-unknown-linux-musl.tar.gz
-tar -xf ninja-0.9.27-x86_64-unknown-linux-musl.tar.gz
+wget https://github.com/gngpp/ninja/releases/download/v0.9.28/ninja-0.9.28-x86_64-unknown-linux-musl.tar.gz
+tar -xf ninja-0.9.28-x86_64-unknown-linux-musl.tar.gz
 mv ./ninja /bin/ninja
 
 # 在线更新版本
