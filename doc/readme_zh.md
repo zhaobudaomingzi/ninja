@@ -209,6 +209,7 @@ services:
 - `--arkose-gpt3-experiment-solver`，开启GPT-3.5 ArkoseLabs实验，需要上传HAR特征文件，并且会校验ArkoseToken正确性
 - `--impersonate-uas`，可选随机模拟UA，多个使用`,`隔开，详细请看命令手册
 - `--auth-key`，`登录`/`HAR Manager`/`Arkose`的`API`认证`Key`，使用`Authorization Bearer`格式发送
+- `--preauth-endpoint`, 启用`Apple`平台`ChatGPT App`登录的`preauth_cookie`端点
 
 ##### 代理高阶用法
 
@@ -313,6 +314,8 @@ Options:
           Cloudflare turnstile captcha secret key [env: CF_SITE_KEY=]
   -A, --auth-key <AUTH_KEY>
           Login/Arkose/HAR Authentication Key [env: AUTH_KEY=]
+  -P, --preauth-endpoint <PREAUTH_ENDPOINT>
+          PreAuth cookie endpoint by Login [env: PREAUTH_ENDPOINT=]
       --enable-webui
           Enable WebUI [env: ENABLE_WEBUI=]
   -F, --enable-file-proxy

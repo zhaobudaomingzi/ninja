@@ -219,6 +219,7 @@ Currently OpenAI has updated `Login` which requires verification of `Arkose Toke
 - `--arkose-gpt3-experiment-solver`, to open the GPT-3.5 ArkoseLabs experiment, you need to upload the HAR feature file, and the correctness of the ArkoseToken will be verified
 - `--impersonate-uas`, you can optionally simulate UA randomly. Use `,` to separate multiple ones. Please see the command manual for details.
 - `--auth-key`, `API` authentication `Key` of `Login`/`HAR Manager`/`Arkose`, sent using `Authorization Bearer` format
+- `--preauth-endpoint`, enable the `preauth_cookie` endpoint for `Apple` platform `ChatGPT App` login
 
 ##### Advanced proxy usage
 
@@ -323,6 +324,8 @@ Options:
           Cloudflare turnstile captcha secret key [env: CF_SITE_KEY=]
   -A, --auth-key <AUTH_KEY>
           Login/Arkose/HAR Authentication Key [env: AUTH_KEY=]
+  -P, --preauth-endpoint <PREAUTH_ENDPOINT>
+          PreAuth cookie endpoint by Login [env: PREAUTH_ENDPOINT=]
       --enable-webui
           Enable WebUI [env: ENABLE_WEBUI=]
   -F, --enable-file-proxy
