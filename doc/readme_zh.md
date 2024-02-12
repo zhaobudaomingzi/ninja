@@ -158,26 +158,12 @@ services:
 
   > 除了登录，都使用`Authorization: Bearer xxxx`，[Python Example](https://github.com/gngpp/ninja/blob/main/doc/authorization.md)
 
-  - 登录: `/auth/token`，表单`option`可选参数，默认为`web`登录，返回`AccessToken`与`Session`；参数为`apple`/`platform`，返回`AccessToken`与`RefreshToken`
+  - 登录: `/auth/token`，表单`option`可选参数，默认为`web`登录，返回`AccessToken`与`Session`；参数为`apple`/`platform`，返回`AccessToken`与`RefreshToken`。其中`Apple`平台`ChatGPT App`登录方式，需要提供`preauth_cookie`端点，启动参数设置`--preauth-endpoint https://example.com/api`，推荐使用[xyhelper](https://github.com/xyhelper)提供的免费端点: `https://tcr9i.xyhelper.cn/auth/preauth`
   - 刷新 `RefreshToken`: `POST /auth/refresh_token`，支持`platform`/`apple`撤销
   - 撤销 `RefreshToken`: `POST /auth/revoke_token`, 支持`platform`/`apple`撤销
   - 刷新 `Session`: `POST /auth/refresh_session`，使用`web`登录返回的`Session`刷新
   - 获取 `Sess token`: `POST /auth/sess_token`，使用`platform`的`AccessToken`获取
   - 获取 `Billing`: `GET /auth/billing`，使用`sess token`获取
-
-  `Web登录`默认返回一个名为: `__Secure-next-auth.session-token`的cookie，客户端只需要保存这个cookie，调用`/auth/refresh_session`也可以刷新`AccessToken`
-
-  `RefreshToken`获取的方式，采用`Apple`平台`ChatGPT App`登录方式，原理是使用内置MITM代理。`Apple设备`连上代理即可开启`Apple平台`登录获取`RefreshToken`，仅适用于量小或者个人使用`（量大会封设备，慎用）`，详细使用请看启动参数说明。
-
-  ```shell
-  # 生成证书
-  ninja genca
-
-  ninja run --pbind 0.0.0.0:8888
-
-  # 手机设置网络设置你代理监听地址，例如: http://192.168.1.1:8888
-  # 之后浏览器打开 http://192.168.1.1:8888/preauth/cert，下载证书安装并信任，之后打开iOS ChatGPT就可以愉快玩耍了
-  ```
 
 #### API文档
 
@@ -365,15 +351,6 @@ Options:
           Token bucket fill rate [default: 1]
       --tb-expired <TB_EXPIRED>
           Token bucket expired (seconds) [default: 86400]
-  -B, --pbind <PBIND>
-          Preauth MITM server bind address [env: PREAUTH_BIND=]
-  -X, --pupstream <PUPSTREAM>
-          Preauth MITM server upstream proxy
-          Supports: http/https/socks5/socks5h [env: PREAUTH_UPSTREAM=]
-      --pcert <PCERT>
-          Preauth MITM server CA certificate file path [default: ca/cert.crt]
-      --pkey <PKEY>
-          Preauth MITM server CA private key file path [default: ca/key.pem]
   -h, --help
           Print help
 ```

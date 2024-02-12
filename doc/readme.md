@@ -158,17 +158,13 @@ Currently OpenAI has updated `Login` which requires verification of `Arkose Toke
 - Authorization
   > Except for login, use `Authorization: Bearer xxxx`, [Python Example](https://github.com/gngpp/ninja/blob/main/doc/authorization.md)
   
-  - Login: `POST /auth/token`, form `option` optional parameter, default is `web` login, returns `AccessToken` and `Session`; parameter is `apple`/`platform`, returns `AccessToken` and `RefreshToken`
+  - Login: `/auth/token`, optional parameter of form `option`, defaults to `web` login, returns `AccessToken` and `Session`; parameter is `apple`/`platform`, returns `AccessToken` and `RefreshToken`. Among them, the `ChatGPT App` login method for the `Apple` platform requires the `preauth_cookie` endpoint and the startup parameter setting `--preauth-endpoint https://example.com/api`. It is recommended to use [xyhelper](https:/ /github.com/xyhelper) Provided free endpoint: `https://tcr9i.xyhelper.cn/auth/preauth`
   - Refresh `RefreshToken`: `POST /auth/refresh_token`, support `platform`/`apple` revocation
   - Revoke `RefreshToken`: `POST /auth/revoke_token`, supports `platform`/`apple` revocation
   - Refresh `Session`: `POST /auth/refresh_session`, use the `Session` returned by `web` login to refresh
   - Obtain `Sess token`: `POST /auth/sess_token`, use `AccessToken` of `platform` to obtain
   - Obtain `Billing`: `GET /auth/billing`, use `sess token` to obtain
   
-  `Web login`, a cookie named: `__Secure-next-auth.session-token` is returned by default. The client only needs to save this cookie. Calling `/auth/refresh_session` can also refresh `AccessToken`
-
-  About the method of obtaining `RefreshToken`, use the `ChatGPT App` login method of the `Apple` platform. The principle is to use the built-in MITM agent. When the `Apple device` is connected to the agent, you can log in to the `Apple platform` to obtain `RefreshToken`. It is only suitable for small quantities or personal use `(large quantities will seal the device, use with caution)`. For detailed usage, please see the startup parameter description.
-
   ```shell
   # Generate certificate
   ninja genca
@@ -365,15 +361,6 @@ Options:
           Token bucket fill rate [default: 1]
       --tb-expired <TB_EXPIRED>
           Token bucket expired (seconds) [default: 86400]
-  -B, --pbind <PBIND>
-          Preauth MITM server bind address [env: PREAUTH_BIND=]
-  -X, --pupstream <PUPSTREAM>
-          Preauth MITM server upstream proxy
-          Supports: http/https/socks5/socks5h [env: PREAUTH_UPSTREAM=]
-      --pcert <PCERT>
-          Preauth MITM server CA certificate file path [default: ca/cert.crt]
-      --pkey <PKEY>
-          Preauth MITM server CA private key file path [default: ca/key.pem]
   -h, --help
           Print help
 ```
