@@ -17,8 +17,8 @@ RUN if [ "${TARGETPLATFORM}" = "linux/arm64" ]; then \
         echo "musleabi" > env; \
     fi
 RUN apk update && apk add wget
-RUN wget https://github.com/gngpp/ninja/releases/download/v${VERSION}/ninja-${VERSION}-$(cat arch)-unknown-linux-$(cat env).tar.gz
-RUN tar -xvf ninja-${VERSION}-$(cat arch)-unknown-linux-$(cat env).tar.gz
+RUN wget https://github.com/gngpp/ninja/releases/download/v0.9.36/ninja-0.9.36-x86_64-unknown-linux-musl.tar.gz
+RUN tar -xvf ninja-0.9.36-x86_64-unknown-linux-musl.tar.gz
 
 FROM alpine:3.16.6
 
