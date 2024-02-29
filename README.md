@@ -22,10 +22,10 @@ Reverse engineered `ChatGPT` proxy
 
 ### Features
 
-- ChatGPT WebUI
 - API key acquisition
 - `Email`/`password` account authentication
-- Proxy `ChatGPT-API`/`OpenAI-API`/`ChatGPT-to-API`
+- Proxy `ChatGPT-API`/`OpenAI-API`
+- ChatGPT WebUI
 - Support IP proxy pool
 - Very small memory footprint
 
