@@ -5,27 +5,18 @@
  <a target="_blank" href="https://github.com/gngpp/ninja/blob/main/LICENSE">
   <img src="https://img.shields.io/badge/license-GPL_3.0-blue.svg"/>
  </a>
-  <a href="https://github.com/gngpp/ninja/releases">
-    <img src="https://img.shields.io/github/release/gngpp/ninja.svg?style=flat">
-  </a>
-  </a><a href="https://github.com/gngpp/ninja/releases">
-    <img src="https://img.shields.io/github/downloads/gngpp/ninja/total?style=flat">
-  </a>
-  [![](https://img.shields.io/docker/image-size/gngpp/ninja)](https://registry.hub.docker.com/r/gngpp/ninja)
-  [![Docker Image](https://img.shields.io/docker/pulls/gngpp/ninja.svg)](https://hub.docker.com/r/gngpp/ninja/)
-
 # ninja
 
 Reverse engineered `ChatGPT` proxy
 
-> The project has been released as closed source.
+> Project has ended.
 
 ### Features
 
-- ChatGPT WebUI
 - API key acquisition
 - `Email`/`password` account authentication
-- Proxy `ChatGPT-API`/`OpenAI-API`/`ChatGPT-to-API`
+- Proxy `ChatGPT-API`/`OpenAI-API`
+- ChatGPT WebUI
 - Support IP proxy pool
 - Very small memory footprint
 

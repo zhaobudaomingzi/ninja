@@ -21,10 +21,10 @@
 
 ### 特性
 
-- ChatGPT WebUI
 - API密钥获取
 - `电子邮件`/`密码`帐户认证
-- 代理 `ChatGPT-API`/`OpenAI-API`/`ChatGPT-to-API`
+- 代理 `ChatGPT-API`/`OpenAI-API`
+- ChatGPT WebUI
 - 支持IP代理池
 - 极少的内存占用
 
